@@ -9,6 +9,7 @@ import StreamPreload from '../../components/ui/streampreload'
 import Ipc from '../../lib/ipc'
 import { applyLowLatencyReceivers, filterIceCandidates, followConsolePicture, logIceList, logSelectedIcePath, logStreamPath, waitForLocalIce } from '../../lib/streamPath'
 import { configureStreamResolution } from '../../lib/streamresolution'
+import { getClarityBoostFilter } from '../../../lib/clarityBoost'
 import { useTranslation } from 'react-i18next'
 
 function Stream() {
@@ -159,6 +160,7 @@ function Stream() {
         let keepaliveInterval: ReturnType<typeof setInterval> | undefined
         let pathLogInterval: ReturnType<typeof setInterval> | undefined
         let stopFollowingPicture: (() => void) | undefined
+        let clarityBoostObserver: MutationObserver | undefined
 
         const streamType = (typeof router.query.serverid === 'string' && router.query.serverid.substr(0, 6) === 'xcloud') ? 'cloud' : 'home'
         const holder = document.getElementById('streamComponentHolder')
@@ -181,6 +183,27 @@ function Stream() {
 
         // Stream is ready so we start the player
         xPlayer.setControllerRumble(settings.controller_vibration)
+
+        const streamHolder = document.getElementById('streamComponent')
+        if (streamHolder && typeof streamHolder.querySelector === 'function') {
+            const applyFilterIfPresent = () => {
+                const videoElement = streamHolder.querySelector('video')
+                if (videoElement) {
+                    videoElement.style.filter = getClarityBoostFilter(settings.clarity_boost_strength)
+                    return true
+                }
+                return false
+            }
+
+            if (!applyFilterIfPresent() && typeof MutationObserver !== 'undefined') {
+                clarityBoostObserver = new MutationObserver(() => {
+                    if (applyFilterIfPresent()) {
+                        clarityBoostObserver?.disconnect()
+                    }
+                })
+                clarityBoostObserver.observe(streamHolder, { childList: true, subtree: true })
+            }
+        }
         xPlayer.setSdpHandler((client, offer) => {
             if(isUnmounting){
                 return
@@ -365,6 +388,10 @@ function Stream() {
             if(stopFollowingPicture !== undefined){
                 stopFollowingPicture()
                 stopFollowingPicture = undefined
+            }
+            if(clarityBoostObserver !== undefined){
+                clarityBoostObserver.disconnect()
+                clarityBoostObserver = undefined
             }
 
             xPlayer.close()
