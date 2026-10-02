@@ -16,8 +16,10 @@ export default class IpcxCloud extends IpcBase {
     _titleManager:TitleManager
 
     _titlesAreLoaded = false
+    _titlesLoadPromise:Promise<void> | undefined
 
     _titles = []
+    _entitledTitles = []
     _nonEntitledTitles = []
     _titlesLastUpdate = 0
 
@@ -40,29 +42,62 @@ export default class IpcxCloud extends IpcBase {
     }
 
     onUserLoaded(){
-        if(this._application._xCloudApi !== undefined){
-            this._application._xCloudApi.getTitles().then((titles:any) => {
-                this._titleManager.setCloudTitles(titles).then(() => {
+        this.loadTitles().catch((error) => {
+            this._application.log('Ipc:xCloud', 'Could not preload titles:', error)
+        })
+    }
 
-                    this._application.log('Ipc:xCloud', 'Titlemanager has loaded all titles.')
-                    this._titlesAreLoaded = true
-
-                    // Uncomment to delay the process of loading data
-                    // setTimeout(() => {
-                    //     this._titlesAreLoaded = true
-                    // }, 5000)
-
-                }).catch((error) => {
-                    this._application.log('Ipc:xCloud', 'Titlemanager is unable to load titles:', error)
-                    console.log('Error setting xCloud titles:', error)
-                })
-
-            }).catch((error) => {
-                this._application.log('Ipc:xCloud', 'Could not load recent titles:', error)
-            })
-        } else {
-            this._application.log('Ipc:xCloud', 'xCloud IPC is not preloading titles as we dont have a valid token')
+    loadTitles(force = false):Promise<void>{
+        if(this._titlesLoadPromise !== undefined){
+            return this._titlesLoadPromise
         }
+
+        if(this._titlesAreLoaded && !force){
+            return Promise.resolve()
+        }
+
+        if(this._application._xCloudApi === undefined){
+            return Promise.reject(new Error('Cannot load xCloud titles without a valid token'))
+        }
+
+        const request = this._application._xCloudApi.getTitles().then((titles:any) => {
+            const allTitles = []
+            const entitledTitles = []
+
+            for(const title in titles.results){
+                const item = titles.results[title]
+                if(item.titleId){
+                    allTitles.push(item.titleId)
+                    if(item.details?.hasEntitlement || item.details?.isFreeInStore){
+                        entitledTitles.push(item.titleId)
+                    }
+                } else {
+                    this._application.log('Ipc:xCloud', 'Title found without a titleID:', item)
+                }
+            }
+
+            // setCloudTitles creates the raw title records synchronously and then
+            // enriches them in the background. Raw titles are sufficient to make
+            // the library usable and must not be blocked by catalogue requests.
+            const catalogRefresh = this._titleManager.setCloudTitles(titles)
+
+            this._titles = allTitles
+            this._entitledTitles = entitledTitles
+            this._titlesLastUpdate = Date.now()
+            this._titlesAreLoaded = true
+
+            this._application.log('Ipc:xCloud', 'Titlemanager has loaded title records.')
+            catalogRefresh.then(() => {
+                this._application.log('Ipc:xCloud', 'Titlemanager has refreshed catalog metadata.')
+            })
+        }).finally(() => {
+            if(this._titlesLoadPromise === request){
+                this._titlesLoadPromise = undefined
+            }
+        })
+
+        this._titlesLoadPromise = request
+        return request
     }
 
     // Returns the last played titles (stream titles)
@@ -71,14 +106,14 @@ export default class IpcxCloud extends IpcBase {
             if(this._recentTitlesLastUpdate < Date.now() - 60*1000){
                 this._application._xCloudApi.getRecentTitles().then((titles:any) => {
                     const returnTitles = []
-    
+
                     for(const title in titles.results){
                         if(titles.results[title].titleId)
                             returnTitles.push(titles.results[title].titleId)
                         else
                             this._application.log('Ipc:xCloud', 'Title found without a titleID:', titles.results[title])
                     }
-                    
+
                     this._recentTitles = returnTitles
                     this._recentTitlesLastUpdate = Date.now()
 
@@ -93,46 +128,20 @@ export default class IpcxCloud extends IpcBase {
         })
     }
 
-    _entitledTitles = []
-
-    getTitles(args:TitleListArgs = {}){
+    async getTitles(args:TitleListArgs = {}){
         const onlyEntitled = args ? (args?.onlyEntitled !== false) : true
 
-        return new Promise((resolve, reject) => {
-            if(this._titlesLastUpdate < Date.now() - 3600*1000){
-                this._application._xCloudApi.getTitles().then((titles:any) => {
-                    const allTitles = []
-                    const entitledTitles = []
-                    console.log('titles:', titles)
+        if(this._titlesLastUpdate < Date.now() - 3600*1000){
+            await this.loadTitles(true)
+        } else if(!this._titlesAreLoaded){
+            await this.loadTitles()
+        }
 
-                    for(const title in titles.results){
-                        const item = titles.results[title]
-                        if(item.titleId){
-                            allTitles.push(item.titleId)
-                            if(item.details?.hasEntitlement || item.details?.isFreeInStore){
-                                entitledTitles.push(item.titleId)
-                            }
-                        } else {
-                            this._application.log('Ipc:xCloud', 'Title found without a titleID:', item)
-                        }
-                    }
+        if(onlyEntitled){
+            return this._entitledTitles.length > 0 ? this._entitledTitles : this._titleManager.getTitles(true)
+        }
 
-                    this._titles = allTitles
-                    this._entitledTitles = entitledTitles
-                    this._titlesLastUpdate = Date.now()
-
-                    resolve(onlyEntitled ? entitledTitles : allTitles)
-                })
-                    .catch((error) => {
-                        reject(error)
-                    })
-            } else if (onlyEntitled) {
-                const entitled = this._entitledTitles.length > 0 ? this._entitledTitles : this._titleManager.getTitles(true)
-                resolve(entitled)
-            } else {
-                resolve(this.filterTitlesByEntitlement(this._titles, args.showNonEntitled))
-            }
-        })
+        return this.filterTitlesByEntitlement(this._titles, args.showNonEntitled)
     }
 
     filterTitlesByEntitlement(titles, showNonEntitled = true){
@@ -142,88 +151,56 @@ export default class IpcxCloud extends IpcBase {
         return titles.filter((titleId) => !this._nonEntitledTitles.includes(titleId))
     }
 
-    filterTitles(filter: { name: string; onlyEntitled?: boolean }){
-        return new Promise((resolve) => {
-            const titles = this._titleManager.filterTitles(filter)
+    async filterTitles(filter: { name: string; onlyEntitled?: boolean }){
+        if(!this._titlesAreLoaded){
+            await this.loadTitles()
+        }
 
-            resolve(titles)
-        })
+        return this._titleManager.filterTitles(filter)
     }
 
-    getNewTitles(args:TitleListArgs = {}){
-        return new Promise((resolve, reject) => {
-            if(this._newTitlesLastUpdate < Date.now() - 3600*1000){
-                this._titleManager.getNewTitles().then((titles:any) => {
+    async getNewTitles(args:TitleListArgs = {}){
+        if(!this._titlesAreLoaded){
+            await this.loadTitles()
+        }
 
-                    const returnTitles = []
+        if(this._newTitlesLastUpdate < Date.now() - 3600*1000){
+            const titles:any = await this._titleManager.getNewTitles()
+            const returnTitles = []
 
-                    for(const title in titles){
-                        if(titles[title].id !== undefined){
-                            const storeTitle = this._titleManager.findTitleByProductId(titles[title].id)
-                            
-                            if(storeTitle === undefined){
-                                this._application.log('Ipc:xCloud', 'Title not found in cache:', storeTitle, titles[title])
-                            } else {
-                                returnTitles.push(storeTitle.titleId)
-                            }
-                        } else {
-                            this._application.log('Ipc:xCloud', 'Title found without an id:', titles[title])
-                        }
+            for(const title in titles){
+                if(titles[title].id !== undefined){
+                    const storeTitle = this._titleManager.findTitleByProductId(titles[title].id)
+
+                    if(storeTitle === undefined){
+                        this._application.log('Ipc:xCloud', 'Title not found in cache:', storeTitle, titles[title])
+                    } else {
+                        returnTitles.push(storeTitle.titleId)
                     }
-                    
-                    this._newTitles = returnTitles
-                    this._newTitlesLastUpdate = Date.now()
-
-                    resolve(this.filterTitlesByEntitlement(returnTitles, args.showNonEntitled))
-                }).catch((error) => {
-                    reject(error)
-                })
-            } else {
-                resolve(this.filterTitlesByEntitlement(this._newTitles, args.showNonEntitled))
+                } else {
+                    this._application.log('Ipc:xCloud', 'Title found without an id:', titles[title])
+                }
             }
-        })
-    }
 
-    getTitle(args:getTitleArgs){
-        return new Promise((resolve) => {
-            if(this._titlesAreLoaded === false){
-
-                this.waitForTitle(resolve, args)
-            } else {
-                const title = this._titleManager.findTitle(args.titleId)
-
-                resolve(title)
-            }
-        })
-    }
-
-    waitForTitle(resolveCallback, args:getTitleArgs, attempts = 0){
-        if(this._isDestroyed || attempts >= 150){
-            resolveCallback(undefined)
-            return
+            this._newTitles = returnTitles
+            this._newTitlesLastUpdate = Date.now()
         }
 
-        const entry = {
-            timeoutId: undefined as unknown as ReturnType<typeof setTimeout>,
-            resolveCallback,
+        return this.filterTitlesByEntitlement(this._newTitles, args.showNonEntitled)
+    }
+
+    async getTitle(args:getTitleArgs){
+        if(!this._titlesAreLoaded){
+            await this.loadTitles()
         }
-        entry.timeoutId = setTimeout(() => {
-            this._waitEntries.delete(entry)
-            if(this._isDestroyed){
-                resolveCallback(undefined)
-                return
-            }
 
-            if(this._titlesAreLoaded === false){
-                this._application.log('Ipc:xCloud', 'Titles not loaded yet. Queueing title:', args.titleId, this._titlesAreLoaded, this._titleManager._xCloudTitles)
-                this.waitForTitle(resolveCallback, args, attempts + 1)
-            } else {
-                const title = this._titleManager.findTitle(args.titleId)
+        let title = this._titleManager.findTitle(args.titleId)
+        if(title?.catalogDetails === undefined){
+            await this._titleManager.waitForCatalog()
+            title = this._titleManager.findTitle(args.titleId)
+        }
 
-                resolveCallback(title)
-            }    
-        }, 200)
-        this._waitEntries.add(entry)
+        return title
     }
 
     destroy(): void {
