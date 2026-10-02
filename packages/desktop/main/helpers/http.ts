@@ -1,6 +1,8 @@
 import https from 'https'
 import Application from '../application'
 
+const REQUEST_TIMEOUT = 10*1000
+
 export default class Http {
 
     _application:Application
@@ -110,7 +112,7 @@ export default class Http {
                         } catch(error){
                             // Data is not JSON..
                         }
-                        
+
                         resolve(returnData)
                     } else {
                         this._application.log('HTTP', 'post('+url+') reject:', response.statusCode)
@@ -121,6 +123,10 @@ export default class Http {
                         })
                     }
                 })
+            })
+
+            req.setTimeout(REQUEST_TIMEOUT, () => {
+                req.destroy(new Error('HTTP request timed out'))
             })
 
             req.on('error', (error) => {
