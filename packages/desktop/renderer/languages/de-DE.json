@@ -57,7 +57,7 @@
         "removeQuestion": "{{gamertag}} aus Greenlight entfernen?"
       },
       "input": {
-        "settingsInputPageTitle": "Einstellungen: Eingabe",
+        "pageTitle": "Einstellungen: Eingabe",
         "dPadUp": "D-Pad Hoch",
         "dPadDown": "D-Pad Runter",
         "dPadLeft": "D-Pad Links",
@@ -98,8 +98,7 @@
         "rightStickRight": "Rechter Stick nach rechts",
         "mouseSensitivity": "Mausempfindlichkeit",
         "mouseSensitivityDescription": "Geschwindigkeit des Zeigers der Konsole: Verringere den Wert, wenn er sich zu schnell bewegt. Er gilt beim nächsten Start eines Streams.",
-        "keyboardMappingsTitle": "Tastaturbelegungen",
-        "pageTitle": "pageTitle"
+        "keyboardMappingsTitle": "Tastaturbelegungen"
       },
       "common": {
         "resetDefaultsBtn": "Auf Standard zurücksetzen",
@@ -181,8 +180,7 @@
         "outputDeviceLabel": "Audioausgabegerät",
         "inputDeviceLabel": "Mikrofon",
         "defaultDeviceLabel": "Systemstandard",
-        "unnamedDeviceLabel": "Gerät",
-        "videoTitle": "videoTitle"
+        "unnamedDeviceLabel": "Gerät"
       },
       "webUI": {
         "pageTitle": "Einstellungen: Weboberfläche",

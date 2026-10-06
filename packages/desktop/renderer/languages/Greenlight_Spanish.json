@@ -57,7 +57,7 @@
         "removeQuestion": "¿Eliminar {{gamertag}} de Greenlight?"
       },
       "input": {
-        "settingsInputPageTitle": "Configuración: Controles",
+        "pageTitle": "Configuración: Controles",
         "dPadUp": "Cruceta Arriba",
         "dPadDown": "Cruceta Abajo",
         "dPadLeft": "Cruceta Izquierda",
@@ -98,8 +98,7 @@
         "rightStickRight": "Palanca derecha derecha",
         "mouseSensitivity": "Sensibilidad del ratón",
         "mouseSensitivityDescription": "Velocidad del puntero de la consola: redúcela si se mueve demasiado rápido. Se aplica la próxima vez que se inicie una transmisión.",
-        "keyboardMappingsTitle": "Asignación de teclas",
-        "pageTitle": "Título página"
+        "keyboardMappingsTitle": "Asignación de teclas"
       },
       "common": {
         "resetDefaultsBtn": "Restablecer valores predeterminados",
@@ -181,8 +180,7 @@
         "outputDeviceLabel": "Dispositivo de salida de audio",
         "inputDeviceLabel": "Micrófono",
         "defaultDeviceLabel": "Predeterminado del sistema",
-        "unnamedDeviceLabel": "Dispositivo",
-        "videoTitle": "Título Vídeo"
+        "unnamedDeviceLabel": "Dispositivo"
       },
       "webUI": {
         "pageTitle": "Configuración: Interfaz Web",

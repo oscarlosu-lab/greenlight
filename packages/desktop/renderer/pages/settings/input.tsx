@@ -70,6 +70,7 @@ function KeySettings({keyConfigs, setKeyConfig}) {
                             break
                         case 'Nexus':
                             fullBtnText = t('settings.input.nexus')
+                            break
                         default:
                             // The directions of the sticks have one string each: leftStickUp, rightStickLeft, ...
                             fullBtnText = STICK_KEYS.includes(btn) ? t(`settings.input.${btn.charAt(0).toLowerCase()}${btn.slice(1)}`) : btn
