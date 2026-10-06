@@ -1,5 +1,6 @@
 import IpcBase from './base'
 import { defaultSettings } from '../../renderer/context/userContext.defaults'
+import { setMainLanguage } from '../helpers/i18n'
 
 export default class IpcSettings extends IpcBase {
 
@@ -13,6 +14,9 @@ export default class IpcSettings extends IpcBase {
             // Perform save
             this._application._store.set('settings', newSettings)
             this._application._discord?.syncWithSettings()
+
+            // Keep native dialogs in the selected language
+            setMainLanguage(newSettings.language)
             resolve(newSettings)
         })
     }

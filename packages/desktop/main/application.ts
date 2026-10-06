@@ -4,6 +4,7 @@ import Store from 'electron-store'
 import { randomUUID } from 'crypto'
 import Debug from 'debug'
 import { createWindow, xboxWorker, updater } from './helpers'
+import { setMainLanguage } from './helpers/i18n'
 import Authentication from './authentication'
 import Ipc from './ipc'
 import WebUI from './webui'
@@ -152,6 +153,10 @@ export default class Application {
         }
 
         ElectronApp.whenReady().then(() => {
+            // Translate native dialogs with the language selected in the settings
+            const settings = this._store.get('settings', {}) as { language?: string }
+            setMainLanguage(settings.language)
+
             updater({
                 // debug: true,
                 silent: true,
