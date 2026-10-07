@@ -3,9 +3,11 @@ import Head from 'next/head'
 import SettingsSidebar from '../../components/settings/sidebar'
 import Card from '../../components/ui/card'
 import AudioDeviceSelect from '../../components/ui/audiodeviceselect'
+import Button from '../../components/ui/button'
 import Ipc from '../../lib/ipc'
 import { useAudioDevices } from '../../lib/audiodevices'
 import { useSettings } from '../../context/userContext'
+import { defaultSettings } from '../../context/userContext.defaults'
 import { useTranslation } from 'react-i18next'
 
 
@@ -56,6 +58,18 @@ function SettingsVideo() {
         })
     }
 
+    function resetDefaults(){
+        if(!confirm(t('settings.common.resetDefaultsConfirm'))) return
+
+        setSettings({
+            ...settings,
+            video_enabled: defaultSettings.video_enabled,
+            audio_enabled: defaultSettings.audio_enabled,
+            video_size: defaultSettings.video_size,
+            app_lowresolution: defaultSettings.app_lowresolution,
+        })
+    }
+
     return (
         <React.Fragment>
             <Head>
@@ -68,9 +82,9 @@ function SettingsVideo() {
 
                     <p>
                         <label>{t('settings.videoAudio.disableVideoLabel')}</label>
-                        <label style={{ minWidth: 0 }}>
-                            <input type='checkbox' onChange={ setVideoEnabled } checked={!settings.video_enabled} />&nbsp; ({ !settings.video_enabled ? t('settings.videoAudio.enabledLabel') : t('settings.videoAudio.disabledLabel')})
-                        </label>
+                        <span style={{ minWidth: 0 }}>
+                            <input type='checkbox' aria-label={t('settings.videoAudio.disableVideoLabel')} onChange={ setVideoEnabled } checked={!settings.video_enabled} />
+                        </span>
                     </p>
 
                     <p>
@@ -86,9 +100,9 @@ function SettingsVideo() {
 
                     <p>
                         <label>{t('settings.videoAudio.forceLowResLabel')}</label>
-                        <label style={{ minWidth: 0 }}>
-                            <input type='checkbox' onChange={ forceLowResolution } checked={settings.app_lowresolution} />&nbsp; ({ settings.app_lowresolution ? t('settings.videoAudio.enabledLabel') : t('settings.videoAudio.disabledLabel')})
-                        </label><br />
+                        <span style={{ minWidth: 0 }}>
+                            <input type='checkbox' aria-label={t('settings.videoAudio.forceLowResLabel')} onChange={ forceLowResolution } checked={settings.app_lowresolution} />
+                        </span><br />
                         <small>{t('settings.videoAudio.forceLowResDescription')}</small>
                     </p>
 
@@ -106,9 +120,9 @@ function SettingsVideo() {
 
                     <p>
                         <label>{t('settings.videoAudio.disableAudioLabel')}</label>
-                        <label style={{ minWidth: 0 }}>
-                            <input type='checkbox' onChange={ setAudioEnabled } checked={!settings.audio_enabled} />&nbsp; ({ !settings.audio_enabled ? t('settings.videoAudio.enabledLabel') : t('settings.videoAudio.disabledLabel')})
-                        </label>
+                        <span style={{ minWidth: 0 }}>
+                            <input type='checkbox' aria-label={t('settings.videoAudio.disableAudioLabel')} onChange={ setAudioEnabled } checked={!settings.audio_enabled} />
+                        </span>
                     </p>
 
                     <p>
@@ -131,6 +145,10 @@ function SettingsVideo() {
                         }} />
                     </p>
                 </Card>
+
+                <p style={{ textAlign: 'right' }}>
+                    <Button onClick={ resetDefaults } className='btn-small' label={ t('settings.common.resetDefaultsBtn') }></Button>
+                </p>
             </SettingsSidebar>
 
 
