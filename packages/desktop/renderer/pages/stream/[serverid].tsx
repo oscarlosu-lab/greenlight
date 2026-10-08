@@ -7,6 +7,7 @@ import { useSettings } from '../../context/userContext'
 import StreamComponent from '../../components/ui/streamcomponent'
 import StreamPreload from '../../components/ui/streampreload'
 import Ipc from '../../lib/ipc'
+import CompactGamepadDriver from '../../lib/gamepaddriver'
 import { applyLowLatencyReceivers, filterIceCandidates, followConsolePicture, logIceList, logSelectedIcePath, logStreamPath, waitForLocalIce } from '../../lib/streamPath'
 import { configureStreamResolution } from '../../lib/streamresolution'
 import { CLARITY_SVG_FILTER_ID, getClaritySharpenKernel, getClarityVideoFilter } from '../../../lib/clarityBoost'
@@ -98,6 +99,7 @@ function Stream() {
                             input_touch: settings.input_touch || false,
                             input_mousekeyboard: settings.input_mousekeyboard || false,
                             input_legacykeyboard: (settings.input_newgamepad) ? false : true,
+                            input_driver: new CompactGamepadDriver(),
                             input_mousekeyboard_config: settings.input_mousekeyboard_config !== undefined ? {
                                 _keymapping: settings.input_mousekeyboard_config,
                             } : undefined as any,
