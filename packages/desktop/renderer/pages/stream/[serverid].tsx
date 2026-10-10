@@ -8,6 +8,9 @@ import StreamComponent from '../../components/ui/streamcomponent'
 import StreamPreload from '../../components/ui/streampreload'
 import Ipc from '../../lib/ipc'
 import CompactGamepadDriver from '../../lib/gamepaddriver'
+import { setMouseSensitivity } from '../../lib/mousesensitivitypatch'
+import { applyKeyboardSticks } from '../../lib/keyboardsticks'
+import { applyEscapeAsHome, pressHomeButton } from '../../lib/escapekey'
 import { applyLowLatencyReceivers, filterIceCandidates, followConsolePicture, logIceList, logSelectedIcePath, logStreamPath, waitForLocalIce } from '../../lib/streamPath'
 import { configureStreamResolution } from '../../lib/streamresolution'
 import { CLARITY_SVG_FILTER_ID, getClaritySharpenKernel, getClarityVideoFilter } from '../../../lib/clarityBoost'
@@ -94,6 +97,9 @@ function Stream() {
                         }
 
                         // Start xPlayer interface
+                        setMouseSensitivity(settings.input_mouse_sensitivity)
+                        applyKeyboardSticks()
+                        applyEscapeAsHome()
                         setxPlayer(new xCloudPlayer('streamComponent', {
                             ui_systemui: [],
                             input_touch: settings.input_touch || false,
@@ -439,7 +445,10 @@ function Stream() {
 
     function gamepadSend(button){
         console.log('Pressed button:', button)
-        xPlayer?.getChannelProcessor('input')?.pressButton(0, 'Nexus')
+        const input = xPlayer?.getChannelProcessor('input')
+        if (input) {
+            pressHomeButton(input)
+        }
     }
 
     function onDisconnect(){
