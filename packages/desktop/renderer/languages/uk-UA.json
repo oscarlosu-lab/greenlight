@@ -154,7 +154,11 @@
         "clarityBoostLabel": "Clarity Boost",
         "clarityBoostDescription": "(Підвищує різкість відео потоку. Вищі значення підсилюють різкість, контрастність і насиченість.)",
         "audioTitle": "Аудіо",
-        "disableAudioLabel": "Вимкнути аудіо"
+        "disableAudioLabel": "Вимкнути аудіо",
+        "outputDeviceLabel": "Пристрій виведення звуку",
+        "inputDeviceLabel": "Мікрофон",
+        "defaultDeviceLabel": "Системний за замовчуванням",
+        "unnamedDeviceLabel": "Пристрій"
       },
 
       "webUI": {
@@ -252,6 +256,7 @@
       "micActive": "Увімкнено",
       "enableMic": "Увімкнути мікрофон",
       "disableMic": "Вимкнути мікрофон",
+      "audioDevicesTitle": "Аудіопристрої",
       "debugTitle": "Відлагодження",
       "itsTakingALittleLonger": "Це займає трохи більше часу.. Ваша трансляція може скоро початися.",
       "startingConnection": "Початок підключення...",

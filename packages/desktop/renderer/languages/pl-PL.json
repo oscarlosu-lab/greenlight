@@ -153,7 +153,11 @@
         "clarityBoostLabel": "Clarity Boost",
         "clarityBoostDescription": "(Wyostrza obraz wideo strumienia. Wyższe wartości zwiększają ostrość, kontrast i nasycenie kolorów.)",
         "audioTitle": "Dźwięk",
-        "disableAudioLabel": "Wyłącz dźwięk"
+        "disableAudioLabel": "Wyłącz dźwięk",
+        "outputDeviceLabel": "Urządzenie wyjściowe audio",
+        "inputDeviceLabel": "Mikrofon",
+        "defaultDeviceLabel": "Domyślne systemowe",
+        "unnamedDeviceLabel": "Urządzenie"
       },
 
       "webUI": {
@@ -248,6 +252,7 @@
       "micActive": "Aktywny",
       "enableMic": "Włącz mikrofon",
       "disableMic": "Wyłącz mikrofon",
+      "audioDevicesTitle": "Urządzenia audio",
       "debugTitle": "Debugowanie",
       "itsTakingALittleLonger": "Zajmie to chwilę dłużej.. Twój strumień może się rozpocząć za niedługo.",
       "startingConnection": "Rozpoczynanie połączenia...",

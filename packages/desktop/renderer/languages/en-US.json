@@ -154,7 +154,11 @@
         "clarityBoostLabel": "Clarity Boost",
         "clarityBoostDescription": "(Sharpens the video image. Higher values increase contrast and color saturation.)",
         "audioTitle": "Audio",
-        "disableAudioLabel": "Disable audio"
+        "disableAudioLabel": "Disable audio",
+        "outputDeviceLabel": "Audio output device",
+        "inputDeviceLabel": "Microphone",
+        "defaultDeviceLabel": "System default",
+        "unnamedDeviceLabel": "Device"
       },
 
       "webUI": {
@@ -252,6 +256,7 @@
       "micActive": "Active",
       "enableMic": "Enable mic",
       "disableMic": "Disable mic",
+      "audioDevicesTitle": "Audio devices",
       "debugTitle": "Debug",
       "itsTakingALittleLonger": "It's taking a little longer.. Your stream may start soon.",
       "startingConnection": "Starting connection...",

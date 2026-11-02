@@ -149,6 +149,10 @@
         "clarityBoostDescription": "(Aplica enfoque 3x3 y realce visual al vídeo del stream. Valores más altos aumentan la nitidez, contraste y saturación.)",
         "audioTitle": "Audio",
         "disableAudioLabel": "Desactivar audio",
+        "outputDeviceLabel": "Dispositivo de salida de audio",
+        "inputDeviceLabel": "Micrófono",
+        "defaultDeviceLabel": "Predeterminado del sistema",
+        "unnamedDeviceLabel": "Dispositivo",
         "videoTitle": "Título Vídeo"
       },
       "webUI": {
@@ -237,6 +241,7 @@
       "micActive": "Activo",
       "enableMic": "Activar micrófono",
       "disableMic": "Silenciar micrófono",
+      "audioDevicesTitle": "Dispositivos de audio",
       "debugTitle": "Depuración",
       "itsTakingALittleLonger": "Está tardando un poco más de lo habitual... El streaming debería comenzar pronto.",
       "startingConnection": "Iniciando conexión...",

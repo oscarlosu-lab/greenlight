@@ -6,6 +6,9 @@ import Loader from './loader'
 import Card from './card'
 import StreamDebug from './stream-debug'
 import Ipc from '../../lib/ipc'
+import AudioDeviceSelect from './audiodeviceselect'
+import { useAudioDevices, getMicStream } from '../../lib/audiodevices'
+import { useSettings } from '../../context/userContext'
 import { useTranslation } from 'react-i18next'
 
 interface StreamComponentProps {
@@ -20,12 +23,20 @@ function StreamComponent({
     xPlayer,
 }: StreamComponentProps) {
     const { t } = useTranslation()
+    const { settings, setSettings } = useSettings()
+    const audioDevices = useAudioDevices()
 
     const [micStatus, setMicStatus] = React.useState(false)
     const [waitingSeconds, setWaitingSeconds] = React.useState(0)
     const [debugVisible, setDebugVisible] = React.useState(false)
     const waitingIntervalRef = React.useRef<ReturnType<typeof setInterval> | undefined>(undefined)
     const isMountedRef = React.useRef(true)
+    const micStreamRef = React.useRef<MediaStream>(null)
+
+    // Keep the gamebar visible while the audio devices menu is open
+    const [audioMenuOpen, setAudioMenuOpen] = React.useState(false)
+    const audioMenuOpenRef = React.useRef(false)
+    audioMenuOpenRef.current = audioMenuOpen
 
 
 
@@ -81,7 +92,7 @@ function StreamComponent({
                 return
             }
 
-            if ((Date.now() - lastMovement) >= 2000) {
+            if ((Date.now() - lastMovement) >= 2000 && !audioMenuOpenRef.current) {
                 if (!gamebarElement.className.includes('hidden')) {
                     gamebarElement.className = 'hidden'
                 }
@@ -116,18 +127,94 @@ function StreamComponent({
                 clearInterval(waitingIntervalRef.current)
                 waitingIntervalRef.current = undefined
             }
+
+            if (micStreamRef.current) {
+                micStreamRef.current.getTracks().forEach(track => track.stop())
+                micStreamRef.current = null
+            }
         }
     }, [])
 
 
 
     function toggleMic() {
-        if (xPlayer.getChannelProcessor('chat').isPaused === true) {
-            xPlayer.getChannelProcessor('chat').startMic()
-            setMicStatus(true)
+        if (micStreamRef.current === null) {
+            startMic()
         } else {
-            xPlayer.getChannelProcessor('chat').stopMic()
-            setMicStatus(false)
+            stopMic()
+        }
+    }
+
+    // Replaces ChatChannel.startMic so we can capture from the selected input device
+    function startMic() {
+        const chatChannel = xPlayer.getChannelProcessor('chat')
+
+        getMicStream(settings.audio_input_device).then((stream) => {
+            micStreamRef.current = stream
+            stream.getTracks().forEach(track => {
+                xPlayer._webrtcClient?.addTrack(track, stream)
+            })
+
+            chatChannel.isCapturing = true
+            chatChannel.isPaused = false
+            xPlayer.sdpNegotiationChat()
+            setMicStatus(true)
+
+            // Device labels can be empty until microphone permission is granted
+            audioDevices.refresh()
+        }).catch((error) => {
+            alert(`getUserMedia() error: ${error.name}`)
+        })
+    }
+
+    function stopMic() {
+        xPlayer.getChannelProcessor('chat').stopMic()
+
+        micStreamRef.current?.getTracks().forEach(track => track.stop())
+        micStreamRef.current = null
+        setMicStatus(false)
+    }
+
+    function changeInputDevice(deviceId: string) {
+        setSettings({
+            ...settings,
+            audio_input_device: deviceId,
+        })
+
+        const oldStream = micStreamRef.current
+        if (oldStream === null) {
+            return
+        }
+
+        getMicStream(deviceId).then((newStream) => {
+            const oldTrack = oldStream.getAudioTracks()[0]
+            const sender = xPlayer._webrtcClient?.getSenders().find(sender => sender.track === oldTrack)
+            if (sender === undefined) {
+                newStream.getTracks().forEach(track => track.stop())
+                return
+            }
+
+            // replaceTrack swaps the source without renegotiating the chat SDP
+            return sender.replaceTrack(newStream.getAudioTracks()[0]).then(() => {
+                oldStream.getTracks().forEach(track => track.stop())
+                micStreamRef.current = newStream
+            })
+        }).catch((error) => {
+            console.error('Failed to switch input device:', error)
+        })
+    }
+
+    function changeOutputDevice(deviceId: string) {
+        setSettings({
+            ...settings,
+            audio_output_device: deviceId,
+        })
+
+        const audioElement = document.getElementsByTagName('audio')[0]
+        if (audioElement) {
+            audioElement.setSinkId(deviceId).catch((error) => {
+                console.error('Failed to switch output device:', error)
+            })
         }
     }
 
@@ -267,6 +354,9 @@ function StreamComponent({
                             }}></Button> &nbsp;
                             <Button label={(micStatus === false) ? <span><i className="fa-solid fa-microphone-slash"></i> {t("streamWindow.micMuted")}</span> : <span><i className="fa-solid fa-microphone"></i> {t("streamWindow.micActive")}</span>} title={(micStatus === false) ? t("streamWindow.enableMic") : t("streamWindow.disableMic")} className={(micStatus === false) ? 'btn-cancel' : 'btn-primary'} onClick={(e) => {
                                 e.target.blur(); toggleMic()
+                            }}></Button> &nbsp;
+                            <Button label={<i className="fa-solid fa-headphones"></i>} title={t("streamWindow.audioDevicesTitle")} className={audioMenuOpen ? 'btn-primary' : 'btn'} onClick={(e) => {
+                                e.target.blur(); setAudioMenuOpen(!audioMenuOpen)
                             }}></Button>
                         </div>
 
@@ -291,6 +381,17 @@ function StreamComponent({
                             }}></Button>
                         </div>
                     </div>
+
+                    {audioMenuOpen ? <div id="component_streamcomponent_audiodevices">
+                        <p>
+                            <label htmlFor="component_streamcomponent_audiodevices_output">{t('settings.videoAudio.outputDeviceLabel')}</label>
+                            <AudioDeviceSelect id="component_streamcomponent_audiodevices_output" devices={audioDevices.outputs} value={settings.audio_output_device} onChange={changeOutputDevice} />
+                        </p>
+                        <p>
+                            <label htmlFor="component_streamcomponent_audiodevices_input">{t('settings.videoAudio.inputDeviceLabel')}</label>
+                            <AudioDeviceSelect id="component_streamcomponent_audiodevices_input" devices={audioDevices.inputs} value={settings.audio_input_device} onChange={changeInputDevice} />
+                        </p>
+                    </div> : null}
                 </div>
 
                 {debugVisible && <StreamDebug player={xPlayer} />}

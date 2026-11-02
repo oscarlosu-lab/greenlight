@@ -154,7 +154,11 @@
         "clarityBoostLabel": "Clarity Boost",
         "clarityBoostDescription": "(Повышает резкость видео потока. Более высокие значения усиливают резкость, контрастность и насыщенность.)",
         "audioTitle": "Аудио",
-        "disableAudioLabel": "Отключить аудио"
+        "disableAudioLabel": "Отключить аудио",
+        "outputDeviceLabel": "Устройство вывода звука",
+        "inputDeviceLabel": "Микрофон",
+        "defaultDeviceLabel": "Системное по умолчанию",
+        "unnamedDeviceLabel": "Устройство"
       },
 
       "webUI": {
@@ -252,6 +256,7 @@
       "micActive": "Включен",
       "enableMic": "Включить микрофон",
       "disableMic": "Выключить микрофон",
+      "audioDevicesTitle": "Аудиоустройства",
       "debugTitle": "Отладка",
       "itsTakingALittleLonger": "Это занимает немного больше времени.. Ваша трансляция может скоро начаться.",
       "startingConnection": "Начало подключения...",
