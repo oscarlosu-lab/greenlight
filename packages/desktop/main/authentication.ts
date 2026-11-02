@@ -30,7 +30,7 @@ export default class Authentication {
 
     constructor(application:Application){
         this._application = application
-        this._tokenStore = new AuthTokenStore()
+        this._tokenStore = new AuthTokenStore(application._store)
         this._tokenStore.load()
         this._msal = new Msal(this._tokenStore)
     }
@@ -257,6 +257,8 @@ export default class Authentication {
         store.set('user.gamerscore', account.gamerscore)
         store.set('accounts.active', xuid)
 
+        // Keep the in-memory tokens in sync so a pending save cannot restore the previous account
+        this._tokenStore.loadJson(account.tokenstore)
         this._application.restart()
     }
 
@@ -264,6 +266,7 @@ export default class Authentication {
         this.saveActiveAccount()
 
         // Without tokens the app starts the sign in flow after restart
+        this._tokenStore.clear()
         this._application._store.delete('user')
         this._application._store.set('accounts.active', '')
         this._application.restart()
@@ -277,6 +280,7 @@ export default class Authentication {
         if(! isActive)
             return
 
+        this._tokenStore.clear()
         store.delete('user')
         store.set('accounts.active', '')
 
