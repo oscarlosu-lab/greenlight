@@ -54,6 +54,14 @@
         "resetDefaultsConfirm": "Reset the settings on this page to their defaults?",
         "savedNotice": "Saved"
       },
+      "accounts": {
+        "title": "Accounts",
+        "active": "Active",
+        "switch": "Switch",
+        "remove": "Remove",
+        "add": "Add account",
+        "removeQuestion": "Remove {{gamertag}} from Greenlight?"
+      },
 
       "input": {
         "settingsInputPageTitle": "Settings: Input",
