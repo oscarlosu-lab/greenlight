@@ -8,6 +8,7 @@ import StreamComponent from '../../components/ui/streamcomponent'
 import StreamPreload from '../../components/ui/streampreload'
 import Ipc from '../../lib/ipc'
 import { applyLowLatencyReceivers, filterIceCandidates, followConsolePicture, logIceList, logSelectedIcePath, logStreamPath, waitForLocalIce } from '../../lib/streamPath'
+import { configureStreamResolution } from '../../lib/streamresolution'
 import { useTranslation } from 'react-i18next'
 
 function Stream() {
@@ -48,6 +49,7 @@ function Stream() {
             Ipc.send('streaming', 'startStream', {
                 type: streamType,
                 target: serverId,
+                resolution: settings.stream_resolution,
             }).then((result:string) => {
                 if(!isMounted) {
                     return
@@ -164,6 +166,9 @@ function Stream() {
             holder.innerHTML = '<div id="streamComponent" class="size_'+settings.video_size+'"></div>'
         }
         xPlayer.bind()
+        if(settings.stream_resolution > 0){
+            configureStreamResolution(xPlayer, settings.stream_resolution)
+        }
 
         // Set bitrates & video codec profiles
         if((streamType === 'cloud') ? settings.xcloud_bitrate : settings.xhome_bitrate > 0){
