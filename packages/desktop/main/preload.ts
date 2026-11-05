@@ -10,12 +10,6 @@ export const Preload = {
         return new Promise((resolve, reject) => {
             const requestId = ++nextRequestId
 
-            ipcRenderer.send(channel, {
-                id: requestId,
-                action: action,
-                data: data,
-            })
-
             // Wait for event back..
             const callbackFunction = (event, args) => {
                 if(args.action === action && args.id === requestId){
@@ -35,6 +29,12 @@ export const Preload = {
             }
 
             ipcRenderer.on(channel, callbackFunction)
+
+            ipcRenderer.send(channel, {
+                id: requestId,
+                action: action,
+                data: data,
+            })
 
         })
     },

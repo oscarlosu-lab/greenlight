@@ -20,6 +20,7 @@
     "test:open-handles": "node --unhandled-rejections=strict ../../node_modules/jest/bin/jest.js --no-coverage --runInBand --detectOpenHandles --errorOnDeprecated",
     "test:leaks": "node --expose-gc --unhandled-rejections=strict ../../node_modules/jest/bin/jest.js --no-coverage --runInBand --detectLeaks --errorOnDeprecated",
     "test:sanitizers": "node --expose-gc --unhandled-rejections=strict ../../node_modules/jest/bin/jest.js --no-coverage --runInBand --detectOpenHandles --detectLeaks --errorOnDeprecated --randomize",
+    "test:xcloud": "node --test tests/xcloud.test.cjs",
     "test:disabled": "CI=true nextron build --no-pack && CI=true xvfb-maybe -- playwright test -c playwright.config.ts",
     "test-serve": "npx http-server app/ -p 3000",
     "postinstall": "electron-builder install-app-deps",
