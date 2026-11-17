@@ -88,12 +88,7 @@ export default class xCloudApi {
                         if(response.statusCode === 204){
                             // We have to retry..
                             setTimeout(() => {
-                                this._get(url, method).then((result) => {
-                                    resolve(result)
-
-                                }).catch((error) => {
-                                    reject(error)
-                                })
+                                this._get(url, method).then(resolve, reject)
                             }, 750)
                         } else {
                             resolve(returnData)
