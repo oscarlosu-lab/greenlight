@@ -39,8 +39,7 @@ export default class xCloudApi {
         this._type = type
     }
 
-    setToken(host:string, token:string){
-        this._host = host
+    setToken(token:string){
         this._token = token
     }
 
