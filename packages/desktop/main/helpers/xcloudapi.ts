@@ -2,6 +2,7 @@ import https from 'https'
 import Application from '../application'
 import { Address6 } from 'ip-address'
 import { describeIceCandidate } from '../../shared/iceLog'
+import { withTokenRefresh } from './tokenrefresh'
 
 export interface playResult {
     sessionPath:string;
@@ -38,7 +39,21 @@ export default class xCloudApi {
         this._type = type
     }
 
+    setToken(host:string, token:string){
+        this._host = host
+        this._token = token
+    }
+
+    // Requests are retried once with new tokens if the token was refused (it expired while the app was open or the computer was asleep).
     get(url: string, method = 'GET') {
+        return withTokenRefresh(this._application, () => this._get(url, method))
+    }
+
+    post(url: string, postData = {}, headers = {}) {
+        return withTokenRefresh(this._application, () => this._post(url, postData, headers))
+    }
+
+    _get(url: string, method = 'GET') {
         return new Promise((resolve, reject) => {
             let responseData = ''
             let settled = false
@@ -74,7 +89,7 @@ export default class xCloudApi {
                         if(response.statusCode === 204){
                             // We have to retry..
                             setTimeout(() => {
-                                this.get(url, method).then((result) => {
+                                this._get(url, method).then((result) => {
                                     resolve(result)
 
                                 }).catch((error) => {
@@ -106,7 +121,7 @@ export default class xCloudApi {
         })
     }
 
-    post(url: string, postData = {}, headers = {}) {
+    _post(url: string, postData = {}, headers = {}) {
         return new Promise((resolve, reject) => {
             let responseData = ''
             let settled = false
