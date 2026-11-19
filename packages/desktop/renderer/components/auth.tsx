@@ -1,6 +1,8 @@
 import React from 'react'
 import Ipc from '../lib/ipc'
 import Image from 'next/image'
+import QRCode from 'react-qr-code'
+import type { DeviceLogin } from '../../device-login'
 
 import Card from '../components/ui/card'
 import Button from './ui/button'
@@ -14,6 +16,7 @@ interface AuthProps {
   gamerpic?: string;
   gamerscore?: string;
   isLoading?: boolean;
+  deviceLogin?: DeviceLogin | null;
 }
 
 function Auth({
@@ -22,6 +25,7 @@ function Auth({
     gamerpic,
     gamerscore,
     isLoading = false,
+    deviceLogin,
 }: AuthProps) {
     const { t } = useTranslation()
 
@@ -46,7 +50,19 @@ function Auth({
             <div id="component_auth">
 
                 <div id="component_auth_modal">
-                    { isLoading === false ?
+                    { deviceLogin ? <Card>
+                        <div className="component_auth_device_login">
+                            <div className="component_auth_qr">
+                                <QRCode value={ deviceLogin.verificationUri } size={ 128 } title={ t('auth.deviceLoginTitle') } />
+                            </div>
+                            <div>
+                                <h1>{ t('auth.deviceLoginTitle') }</h1>
+                                <p>{ t('auth.deviceLoginInstructions') }</p>
+                                <code className="component_auth_device_code">{ deviceLogin.userCode }</code>
+                                <Button label={ t('auth.openDeviceLogin') } className="btn-primary" onClick={ () => window.Greenlight.openExternal(deviceLogin.verificationUri) } />
+                            </div>
+                        </div>
+                    </Card> : isLoading === false ?
                         <Card>
                             {signedIn === true ? (<div className="component_auth_profile_container">
                                 <div className="component_auth_profile_gamerpic">

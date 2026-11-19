@@ -14496,7 +14496,7 @@ xbox-webapi@2.0.0-beta4, xbox-webapi@^2.0.0-beta4:
   dependencies:
     uuid4 "^2.0.3"
 
-xbox-xcloud-player@^0.2.11:
+xbox-xcloud-player@0.2.11:
   version "0.2.11"
   resolved "https://registry.yarnpkg.com/xbox-xcloud-player/-/xbox-xcloud-player-0.2.11.tgz#5e65137f24ab3a133312ebaa1031afd9806d2ba7"
   integrity sha512-it21dku4zXA09se2QCLfnE1F8AcP2UBy5UvQskz7bZv08fW49Opy/OmZ/ncsjMT4YjfMCKe+5L4ZkLeWu5+93w==

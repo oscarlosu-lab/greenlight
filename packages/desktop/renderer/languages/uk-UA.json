@@ -25,7 +25,10 @@
       "logoutBtn": "Вийти",
       "loginWithXbox": "Увійти через Xbox",
       "pleaseAuthenticate": "Будь ласка, авторизуйтесь нижче для доступу до xCloud та xHome Streaming",
-      "windowTitle": "Авторизація"
+      "windowTitle": "Авторизація",
+      "deviceLoginTitle": "Вхід до Xbox",
+      "deviceLoginInstructions": "Відскануйте QR-код телефоном або відкрийте сторінку входу. Введіть цей код на сторінці Microsoft.",
+      "openDeviceLogin": "Відкрити сторінку входу Microsoft"
     },
 
     "settings": {

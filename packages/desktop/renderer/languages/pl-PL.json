@@ -25,7 +25,10 @@
       "logoutBtn": "Wyloguj się",
       "loginWithXbox": "Zaloguj się przez Xbox",
       "pleaseAuthenticate": "Proszę uwierzytelnić się poniżej, aby uzyskać dostęp do xCloud i strumieniowania xHome",
-      "windowTitle": "Authentication"
+      "windowTitle": "Authentication",
+      "deviceLoginTitle": "Zaloguj się do Xbox",
+      "deviceLoginInstructions": "Zeskanuj kod QR telefonem lub otwórz stronę logowania. Wpisz ten kod na stronie Microsoft.",
+      "openDeviceLogin": "Otwórz stronę logowania Microsoft"
     },
 
     "settings": {

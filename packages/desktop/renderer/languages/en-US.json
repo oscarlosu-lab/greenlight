@@ -25,7 +25,10 @@
       "logoutBtn": "Logout",
       "loginWithXbox": "Login with Xbox",
       "pleaseAuthenticate": "Please authenticate below to access xCloud and xHome Streaming",
-      "windowTitle": "Authentication"
+      "windowTitle": "Authentication",
+      "deviceLoginTitle": "Sign in to Xbox",
+      "deviceLoginInstructions": "Scan the QR code on your phone or open Microsoft sign-in. Enter this code on the Microsoft page.",
+      "openDeviceLogin": "Open Microsoft sign-in"
     },
 
     "settings": {

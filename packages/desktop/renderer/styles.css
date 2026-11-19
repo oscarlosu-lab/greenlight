@@ -34,6 +34,11 @@
 @import 'pages/xcloud/info/[titleid].css';
 @import 'pages/settings/home.css';
 
+[data-gamepad-focus]:focus, .btn:focus-visible {
+    outline: 3px solid #83e568;
+    outline-offset: 3px;
+}
+
 body, * {
     padding: 0px;
     margin: 0px;

@@ -37,6 +37,14 @@ export default class Ipc {
                 this._channels[channel].onEvent(channel, event, args) 
             })
         }
+
+        ipcMain.handle('greenlight:device-login', (event) => {
+            const mainContents = this._application._mainWindow?.webContents
+            if(event.sender === mainContents && event.senderFrame === mainContents?.mainFrame){
+                return this._application._authentication.deviceLogin
+            }
+            return null
+        })
         
     }
 

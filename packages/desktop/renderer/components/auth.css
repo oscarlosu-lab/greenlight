@@ -11,6 +11,34 @@ div#component_auth_modal {
     min-width: 50%;
 }
 
+.component_auth_device_login {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px;
+    max-width: 560px;
+    padding: 20px;
+}
+
+.component_auth_qr {
+    display: flex;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+}
+
+.component_auth_device_login > div:last-child {
+    flex: 1 1 215px;
+}
+
+.component_auth_device_code {
+    display: block;
+    margin: 12px 0;
+    font-size: 26px;
+    letter-spacing: 0.12em;
+    user-select: all;
+}
+
 div.component_auth_profile_container {
     display: flex;
     padding-bottom: 20px;

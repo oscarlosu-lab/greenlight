@@ -3,6 +3,7 @@ import { createWindow } from './helpers'
 import Application from './application'
 import { Msal } from 'xal-node'
 import AuthTokenStore from './helpers/tokenstore'
+import type { DeviceLogin } from '../device-login'
 import i18n from 'i18next';
 
 // After a refresh, tokens refused within this time are not renewed again: the refused call was sent before
@@ -25,7 +26,8 @@ export default class Authentication {
 
     _refreshPromise:Promise<void>|undefined
     _lastRefresh = 0
-
+    deviceLogin:DeviceLogin | null = null
+    private deviceLoginInProgress = false
     private t = i18n.t.bind(i18n);
 
     constructor(application:Application){
@@ -97,6 +99,7 @@ export default class Authentication {
                 this._application.authenticationCompleted(streamingTokens, webToken)
 
             }).catch((error) => {
+                this._isAuthenticating = false
                 this._application.log('authenticationV2', __filename+'[getTokens()] Failed to retrieve web tokens:', error)
                 void dialog.showMessageBox({
                     message: this.t('errors.failedToRetrieveWebTokens') + ' ' + JSON.stringify(error),
@@ -142,7 +145,13 @@ export default class Authentication {
         return this._refreshPromise
     }
 
-    startAuthflow(){
+    async startAuthflow(){
+        if(this.deviceLoginInProgress){
+            return
+        }
+
+        this.deviceLoginInProgress = true
+        this._isAuthenticating = true
         this._application.log('authenticationV2', '[startAuthflow()] Starting authentication flow')
 
         const forceRegionIp = this._application._store.get('force_region_ip', '')
@@ -153,31 +162,27 @@ export default class Authentication {
             this._msal.setDefaultHeaders({})
         }
 
-        this._msal.doDeviceCodeAuth().then((data) => {
-            this._application.log('authenticationV2', '[startAuthflow()] Starting devicecode auth:', data)
+        try {
+            const data = await this._msal.doDeviceCodeAuth()
+            const verificationUri = new URL(data.verification_uri)
+            if(verificationUri.protocol !== 'https:' || !data.user_code){
+                throw new Error('Invalid device sign-in response')
+            }
+            const prefilledUrl = verificationUri.href + '?otc=' + encodeURIComponent(data.user_code)
+            this.deviceLogin = { verificationUri: prefilledUrl, userCode: data.user_code }
+            clipboard.writeText(data.user_code)
 
-            this.openDeviceCodeLink(data.verification_uri, data.user_code)
-
-            this._isAuthenticating = true
-
-            this._msal.doPollForDeviceCodeAuth(data.device_code).then((token) => {
-                this._application.log('authenticationV2', '[startAuthflow()] Devicecode authentication successful:', token)
-
-                this._deviceCodeDialog?.abort()
-                this.getTokens()
-
-            }).catch((error) => {
-                this._deviceCodeDialog?.abort()
-                this._application.log('authenticationV2', '[startAuthflow()] Error during devicecode polling auth:', error)
-                dialog.showErrorBox('Error', 'Failed to perform MSAL authentixation: ' + JSON.stringify(error))
-
-                this._isAuthenticating = false
-            })
-
-        }).catch((error) => {
-            this._application.log('authenticationV2', '[startAuthflow()] Error during devicecode auth:', error)
-            dialog.showErrorBox('Error', this.t('errors.errorAuthentificationUser') + ' ' + JSON.stringify(error))
-        })
+            await this._msal.doPollForDeviceCodeAuth(data.device_code, data.expires_in * 1000)
+            this._application.log('authenticationV2', '[startAuthflow()] Device code authentication completed')
+            this.getTokens()
+        } catch (error) {
+            this._isAuthenticating = false
+            this._application.log('authenticationV2', '[startAuthflow()] Device code authentication failed:', error)
+            dialog.showErrorBox('Error', this.t('errors.errorAuthentificationUser'))
+        } finally {
+            this.deviceLogin = null
+            this.deviceLoginInProgress = false
+        }
     }
 
     openDeviceCodeLink(verificationUri:string, userCode:string){

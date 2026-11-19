@@ -32,9 +32,7 @@ function Button({
                 backgroundSize: 18,
                 paddingLeft: 35,
                 // height: 41,
-            }:{}} onFocus={ (e) => {
-                e.target.blur() 
-            }}>{label}</button>
+            }:{}}>{label}</button>
         </React.Fragment>
     )
 }

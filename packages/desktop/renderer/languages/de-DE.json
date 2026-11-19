@@ -23,7 +23,10 @@
       "logoutBtn": "Abmelden",
       "loginWithXbox": "Mit Xbox anmelden",
       "pleaseAuthenticate": "Bitte authentifiziere dich, um auf xCloud und xHome Streaming zuzugreifen",
-      "windowTitle": "Authentifizierung"
+      "windowTitle": "Authentifizierung",
+      "deviceLoginTitle": "Bei Xbox anmelden",
+      "deviceLoginInstructions": "Scanne den QR-Code mit deinem Handy oder öffne die Anmeldeseite. Gib diesen Code auf der Microsoft-Seite ein.",
+      "openDeviceLogin": "Microsoft-Anmeldung öffnen"
     },
     "settings": {
       "sidebar": {

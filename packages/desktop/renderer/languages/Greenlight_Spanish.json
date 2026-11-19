@@ -23,7 +23,10 @@
       "logoutBtn": "Cerrar sesión",
       "loginWithXbox": "Iniciar sesión con Xbox",
       "pleaseAuthenticate": "Por favor, inicia sesión a continuación para acceder al streaming de xCloud y xHome",
-      "windowTitle": "Autenticación"
+      "windowTitle": "Autenticación",
+      "deviceLoginTitle": "Inicia sesión en Xbox",
+      "deviceLoginInstructions": "Escanea el código QR con tu teléfono o abre la página de inicio de sesión. Introduce este código en la página de Microsoft.",
+      "openDeviceLogin": "Abrir la página de inicio de sesión de Microsoft"
     },
     "settings": {
       "sidebar": {

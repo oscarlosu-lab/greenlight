@@ -1,10 +1,15 @@
 import { contextBridge, ipcRenderer, shell } from 'electron'
 import pkg from '../package.json'
+import type { DeviceLogin } from '../device-login'
 
 // Sequential ids: replies are matched by id, so they only need to be unique, not random
 let nextRequestId = 0
 
 export const Preload = {
+
+    getDeviceLogin(): Promise<DeviceLogin | null> {
+        return ipcRenderer.invoke('greenlight:device-login')
+    },
 
     send(channel:string, action:string, data = {}){
         return new Promise((resolve, reject) => {
