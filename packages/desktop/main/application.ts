@@ -7,6 +7,7 @@ import { createWindow, xboxWorker, updater } from './helpers'
 import Authentication from './authentication'
 import Ipc from './ipc'
 import WebUI from './webui'
+import DiscordManager from './helpers/discord'
 
 import xboxWebApi from 'xbox-webapi'
 import xCloudApi from './helpers/xcloudapi'
@@ -66,6 +67,7 @@ export default class Application {
     public _mainWindow
     public _ipc:Ipc
     public _webUI:WebUI
+    public _discord:DiscordManager
     public _authentication:Authentication
 
     private t = i18n.t.bind(i18n);
@@ -96,6 +98,8 @@ export default class Application {
 
         this._ipc.startUp()
         this._webUI = new WebUI(this)
+        this._discord = new DiscordManager(this)
+        this._discord.syncWithSettings()
     }
 
     log(namespace = 'application', ...args){

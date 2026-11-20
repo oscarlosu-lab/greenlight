@@ -4,6 +4,8 @@ export const defaultSettings = {
     xcloud_show_non_entitled: true,
     video_profiles: [],
     stream_resolution: 0,
+    discord_rpc_enabled: false,
+    discord_rpc_client_id: '',
     preferred_game_language: 'en-US',
     controller_vibration: true,
     video_size: 'default',

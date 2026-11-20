@@ -10,6 +10,7 @@ import Image from 'next/image'
 import GreenlightLogo from '../../public/images/logo.png'
 import Card from '../../components/ui/card'
 import Button from '../../components/ui/button'
+import { useSettings } from '../../context/userContext'
 
 interface userData {
   gamerpic?: string;
@@ -32,6 +33,7 @@ function SettingsHome() {
     const [user, setUser] = React.useState<userData>({})
     const [accounts, setAccounts] = React.useState<accountData[]>([])
     const { t } = useTranslation()
+    const { settings, setSettings } = useSettings()
     const isWebUI = window.Greenlight.isWebUI()
 
     React.useEffect(() => {
@@ -135,6 +137,41 @@ function SettingsHome() {
                 </Card>
 
                 <LanguageSelector />
+
+                <Card>
+                    <h1>Discord Rich Presence</h1>
+                    <p>
+                        <label>
+                            <input
+                                type='checkbox'
+                                checked={settings.discord_rpc_enabled === true}
+                                onChange={(e) => {
+                                    setSettings({
+                                        ...settings,
+                                        discord_rpc_enabled: e.target.checked,
+                                    })
+                                }}
+                            />&nbsp; Enable Discord Rich Presence (opt-in)
+                        </label>
+                    </p>
+                    {settings.discord_rpc_enabled === true && (
+                        <p>
+                            <label>Discord Application Client ID</label><br />
+                            <input
+                                type='text'
+                                className='text'
+                                placeholder='e.g. 123456789012345678'
+                                value={settings.discord_rpc_client_id || ''}
+                                onChange={(e) => {
+                                    setSettings({
+                                        ...settings,
+                                        discord_rpc_client_id: e.target.value,
+                                    })
+                                }}
+                            />
+                        </p>
+                    )}
+                </Card>
 
                 <Card>
                     <div style={{ textAlign: 'center' }}>

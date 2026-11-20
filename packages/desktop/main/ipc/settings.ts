@@ -12,6 +12,7 @@ export default class IpcSettings extends IpcBase {
 
             // Perform save
             this._application._store.set('settings', newSettings)
+            this._application._discord?.syncWithSettings()
             resolve(newSettings)
         })
     }

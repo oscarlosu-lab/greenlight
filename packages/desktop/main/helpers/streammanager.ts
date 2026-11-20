@@ -75,6 +75,7 @@ export default class StreamManager {
                 this._sessions[sessionId] = streamSession
                 this.monitorSession(sessionId)
                 acquireStreamPerformance()
+                this._application._discord?.setStreamingPresence(type, target)
 
                 resolve(sessionId)
             }).catch((error) => {
@@ -88,6 +89,7 @@ export default class StreamManager {
         delete this._sessions[sessionId]
         if(Object.keys(this._sessions).length === 0){
             releaseStreamPerformance()
+            this._application._discord?.setIdlePresence()
         }
     }
 
