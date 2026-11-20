@@ -4,6 +4,7 @@ import Store from 'electron-store'
 import { randomUUID } from 'crypto'
 import Debug from 'debug'
 import { createWindow, xboxWorker, updater } from './helpers'
+import { formatInstanceWindowTitle, parseStartupFlags, resolveInstanceUserDataPath, StartupFlags } from './helpers/instanceProfile'
 import { setMainLanguage } from './helpers/i18n'
 import Authentication from './authentication'
 import Ipc from './ipc'
@@ -16,11 +17,6 @@ import xCloudApi from './helpers/xcloudapi'
 import pkg from '../package.json'
 
 import i18n from 'i18next';
-
-interface startupFlags {
-    fullscreen:boolean;
-    autoStream:string;
-}
 
 const DEV_SERVER_ORIGIN = 'http://localhost'
 const DEV_SERVER_PORT_PATTERN = /^\d{1,5}$/
@@ -53,10 +49,12 @@ const parseDevServerPort = (rawPort:string|undefined):number => {
 export default class Application {
 
     private _log
-    public _store = new Store()
-    private _startupFlags: startupFlags = {
+    public _store: Store
+    private _startupFlags: StartupFlags = {
         fullscreen: false,
         autoStream: '',
+        profile: '',
+        consoleId: '',
     }
 
     public _isProduction:boolean = (process.env.NODE_ENV === 'production')
@@ -90,6 +88,28 @@ export default class Application {
         ElectronApp.commandLine.appendSwitch('enable-zero-copy')
 
         this.readStartupFlags()
+        this.applyInstanceProfile()
+
+        // Enforce one running process per userData profile so two instances never
+        // corrupt the same electron-store / encrypted tokenstore, while allowing
+        // separate --profile=<name> instances to run concurrently.
+        if (this._isCi === false && !ElectronApp.requestSingleInstanceLock()) {
+            this.log('application', __filename+'[constructor()] Another instance is already running for this profile. Quitting.')
+            ElectronApp.quit()
+            return
+        }
+
+        ElectronApp.on('second-instance', () => {
+            if (this._mainWindow) {
+                if (this._mainWindow.isMinimized()) {
+                    this._mainWindow.restore()
+                }
+                this._mainWindow.show()
+                this._mainWindow.focus()
+            }
+        })
+
+        this._store = new Store({ cwd: ElectronApp.getPath('userData') })
         this.loadApplicationDefaults()
 
         // ElectronApp.removeAsDefaultProtocolClient('ms-xal-public-beta-000000004c20a908')
@@ -117,22 +137,29 @@ export default class Application {
 
     readStartupFlags(){
         this.log('application', __filename+'[readStartupFlags()] Program args detected:', process.argv)
+        this._startupFlags = parseStartupFlags(process.argv)
+        this.log('application', __filename+'[readStartupFlags()] End result of startupFlags:', this._startupFlags)
+    }
 
-        for(const arg in process.argv){
-            if(process.argv[arg].includes('--fullscreen')){
-                this.log('application', __filename+'[readStartupFlags()] --fullscreen switch found. Setting fullscreen to true')
-                this._startupFlags.fullscreen = true
-            }
-
-            if(process.argv[arg].includes('--connect=')){
-                const key = process.argv[arg].substring(10)
-
-                this.log('application', __filename+'[readStartupFlags()] --connect switch found. Setting autoStream to', key)
-                this._startupFlags.autoStream = key
-            }
+    applyInstanceProfile(){
+        if (this._isCi === true) {
+            const random = randomUUID()
+            const ciDir = `${ElectronApp.getPath('userData')} (${random})`
+            ElectronApp.setPath('userData', ciDir)
+            ElectronApp.setPath('sessionData', ciDir)
+            return
         }
 
-        this.log('application', __filename+'[readStartupFlags()] End result of startupFlags:', this._startupFlags)
+        let targetUserData = ElectronApp.getPath('userData')
+        if (this._isProduction === false) {
+            targetUserData = `${targetUserData} (development)`
+        }
+        if (this._startupFlags.profile) {
+            targetUserData = resolveInstanceUserDataPath(targetUserData, this._startupFlags.profile)
+            this.log('application', __filename+'[applyInstanceProfile()] Isolated profile userData:', targetUserData)
+        }
+        ElectronApp.setPath('userData', targetUserData)
+        ElectronApp.setPath('sessionData', targetUserData)
     }
 
     loadApplicationDefaults(){
@@ -140,16 +167,10 @@ export default class Application {
             serve({ directory: 'app' })
 
         } else if(this._isCi === true) {
-            const random = randomUUID()
-            ElectronApp.setPath('userData', `${ElectronApp.getPath('userData')} (${random})`)
-            ElectronApp.setPath('sessionData', `${ElectronApp.getPath('userData')} (${random})`)
             this._store.delete('user')
             this._store.delete('auth')
 
             serve({ directory: 'app' })
-        } else {
-
-            ElectronApp.setPath('userData', `${ElectronApp.getPath('userData')} (development)`)
         }
 
         ElectronApp.whenReady().then(() => {
@@ -269,7 +290,7 @@ export default class Application {
         this.log('electron', __filename+'[openMainWindow()] Creating new main window')
 
         const windowOptions:any = {
-            title: 'Greenlight',
+            title: formatInstanceWindowTitle(this._startupFlags.profile, this._startupFlags.consoleId),
             backgroundColor: 'rgb(26, 27, 30)',
         }
         if(this._startupFlags.fullscreen === true){

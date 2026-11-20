@@ -54,6 +54,14 @@ export default class IpcApp extends IpcBase {
         return Promise.resolve(this.openDiagnosticWindow('chrome://webrtc-internals', 'Greenlight - WebRTC Internals'))
     }
 
+    getConsoleId(){
+        return Promise.resolve(this._application.getStartupFlags().consoleId || '')
+    }
+
+    getInstanceProfile(){
+        return Promise.resolve(this._application.getStartupFlags().profile || '')
+    }
+
     loadCachedUser(){
         return new Promise((resolve) => {
             const user = this.getUserState()
