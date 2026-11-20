@@ -30,7 +30,7 @@ function SettingsStreaming() {
     function resetDefaults(){
         if(!confirm(t('settings.common.resetDefaultsConfirm'))) return
 
-        const keys = ['xcloud_bitrate', 'xhome_bitrate', 'xcloud_show_non_entitled', 'video_profiles', 'force_region_ip', 'preferred_game_language']
+        const keys = ['xcloud_bitrate', 'xhome_bitrate', 'xcloud_show_non_entitled', 'video_profiles', 'video_codec', 'force_region_ip', 'preferred_game_language']
         const reset = {}
         keys.forEach((k) => { reset[k] = defaultSettings[k] })
         setSettings({ ...settings, ...reset })
@@ -68,6 +68,13 @@ function SettingsStreaming() {
         setSettings({
             ...settings,
             video_profiles: (profile !== '') ? [profile] : [],
+        })
+    }
+
+    function setVideoCodec(codec: string){
+        setSettings({
+            ...settings,
+            video_codec: codec || 'h264',
         })
     }
 
@@ -139,6 +146,16 @@ function SettingsStreaming() {
                             <option value={1440}>1440p</option>
                         </select>
                         <br /><small>{t('settings.streaming.streamResolutionDescription')}</small>
+                    </p>
+
+                    <p>
+                        <label>{t('settings.streaming.preferredCodecLabel')}</label>
+                        <select value={ settings.video_codec || 'h264' } onChange={ (e) => setVideoCodec(e.target.value) }>
+                            <option value="h264">{t('settings.streaming.preferredCodecValueH264')}</option>
+                            <option value="hevc">{t('settings.streaming.preferredCodecValueHEVC')}</option>
+                            <option value="av1">{t('settings.streaming.preferredCodecValueAV1')}</option>
+                        </select>
+                        <br /><small>{t('settings.streaming.preferredCodecDescription')}</small>
                     </p>
 
                     <p>

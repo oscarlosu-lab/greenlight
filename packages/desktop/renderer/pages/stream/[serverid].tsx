@@ -15,6 +15,7 @@ import { applyRemoteOfferErrorHandling, applySystemUiSupport, clearSystemUiOverl
 import { applyLowLatencyReceivers, filterIceCandidates, followConsolePicture, logIceList, logSelectedIcePath, logStreamPath, waitForLocalIce } from '../../lib/streamPath'
 import { configureStreamResolution } from '../../lib/streamresolution'
 import { CLARITY_SVG_FILTER_ID, getClaritySharpenKernel, getClarityVideoFilter } from '../../../lib/clarityBoost'
+import { applyVideoCodecPreferences, DEFAULT_H264_PROFILES } from '../../../lib/codecPreference'
 import { useTranslation } from 'react-i18next'
 
 function Stream() {
@@ -194,8 +195,10 @@ function Stream() {
 
         const effectiveVideoProfiles = (settings.video_profiles && settings.video_profiles.length > 0)
             ? settings.video_profiles
-            : ['4d', '42e', '420'] // Prefer H.264 High (4d), fallback Main (42e) / Baseline (420)
-        xPlayer.setCodecPreferences('video/H264', { profiles: effectiveVideoProfiles })
+            : DEFAULT_H264_PROFILES // Prefer H.264 High (4d), fallback Main (42e) / Baseline (420)
+        // Apply ordered codec preferences directly on the video transceiver so H.264 fallback
+        // and RTX/RED/ULPFEC packet-loss resilience codecs are always preserved.
+        applyVideoCodecPreferences(xPlayer, settings.video_codec, effectiveVideoProfiles)
 
         // Stream is ready so we start the player
         xPlayer.setControllerRumble(settings.controller_vibration)

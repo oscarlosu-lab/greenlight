@@ -3,6 +3,7 @@ export const defaultSettings = {
     xcloud_bitrate: 0,
     xcloud_show_non_entitled: true,
     video_profiles: [],
+    video_codec: 'h264',
     stream_resolution: 0,
     discord_rpc_enabled: false,
     discord_rpc_client_id: '',
