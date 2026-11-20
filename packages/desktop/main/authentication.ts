@@ -32,13 +32,15 @@ export default class Authentication {
 
     constructor(application:Application){
         this._application = application
+        // Tokens are loaded lazily in checkAuthentication(): the constructor runs before the app 'ready' event,
+        // and on Windows OS safeStorage (DPAPI) cannot decrypt the stored tokens until then.
         this._tokenStore = new AuthTokenStore(application._store)
-        this._tokenStore.load()
         this._msal = new Msal(this._tokenStore)
     }
 
     checkAuthentication(){
         this._application.log('authenticationV2', '[checkAuthentication()] Starting token check...')
+        this._tokenStore.load()
         if(this._tokenStore.hasValidAuthTokens()){
 
             // Deprecate xal token.

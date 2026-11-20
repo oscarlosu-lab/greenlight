@@ -1,13 +1,25 @@
-import { safeStorage } from 'electron'
+import { app, safeStorage } from 'electron'
 import { TokenStore } from 'xal-node'
 import Store from 'electron-store'
 
 const ENCRYPTED_PREFIX = 'enc:v1:'
 
+function isEncryptionAvailable(): boolean {
+    return !!safeStorage && typeof safeStorage.isEncryptionAvailable === 'function' && safeStorage.isEncryptionAvailable()
+}
+
+// safeStorage only works after the app 'ready' event. Before it, "unavailable" says nothing about the OS.
+function isAppReady(): boolean {
+    return !app || typeof app.isReady !== 'function' || app.isReady()
+}
+
 export function encryptTokenPayload(plaintextJson: string): string {
-    if (safeStorage && typeof safeStorage.isEncryptionAvailable === 'function' && safeStorage.isEncryptionAvailable()) {
+    if (isEncryptionAvailable()) {
         const encrypted = safeStorage.encryptString(plaintextJson)
         return ENCRYPTED_PREFIX + encrypted.toString('base64')
+    }
+    if (!isAppReady()) {
+        throw new Error('Token payload cannot be encrypted before the app is ready')
     }
     console.warn('AuthTokenStore: OS safeStorage encryption is unavailable; falling back to unencrypted token storage.')
     return plaintextJson
@@ -39,11 +51,20 @@ export default class AuthTokenStore extends TokenStore {
 
     load() {
         const raw = this._store.get('user.tokenstore', '{}') as string
-        const decrypted = decryptTokenPayload(raw)
+
+        let decrypted: string
+        try {
+            decrypted = decryptTokenPayload(raw)
+        } catch (error) {
+            // Start signed out but keep the stored (encrypted) tokens untouched, so they can be read again later.
+            console.warn('AuthTokenStore: stored tokens could not be decrypted; starting signed out.', (error as Error)?.message)
+            this.loadJson('{}')
+            return false
+        }
         this.loadJson(decrypted)
 
         // Transparently migrate legacy plaintext tokens to OS-encrypted storage (Windows DPAPI)
-        if (raw !== '{}' && !raw.startsWith(ENCRYPTED_PREFIX) && safeStorage?.isEncryptionAvailable?.()) {
+        if (raw !== '{}' && !raw.startsWith(ENCRYPTED_PREFIX) && isEncryptionAvailable()) {
             this._store.set('user.tokenstore', encryptTokenPayload(decrypted))
         }
 
@@ -57,7 +78,12 @@ export default class AuthTokenStore extends TokenStore {
             jwtKeys: this._jwtKeys,
         })
 
-        this._store.set('user.tokenstore', encryptTokenPayload(data))
+        try {
+            this._store.set('user.tokenstore', encryptTokenPayload(data))
+        } catch (error) {
+            // Never write tokens in plaintext because the app was not ready yet; keep what is stored.
+            console.warn('AuthTokenStore: tokens not saved.', (error as Error)?.message)
+        }
     }
 
     clear() {

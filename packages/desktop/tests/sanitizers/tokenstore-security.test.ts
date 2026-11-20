@@ -7,9 +7,14 @@ const mockDecrypt = jest.fn((buf: Buffer) => {
     return str.slice('DPAPI::'.length)
 })
 
+// Simulates Electron on Windows: safeStorage is only available after the app 'ready' event.
+let mockAppReady = true
 jest.mock('electron', () => ({
+    app: {
+        isReady: jest.fn(() => mockAppReady),
+    },
     safeStorage: {
-        isEncryptionAvailable: jest.fn(() => true),
+        isEncryptionAvailable: jest.fn(() => mockAppReady),
         encryptString: mockEncrypt,
         decryptString: mockDecrypt,
     },
@@ -91,5 +96,47 @@ describe('AuthTokenStore safeStorage encryption (RED security gate)', () => {
         const enc = encryptTokenPayload('{"k":"v"}')
         expect(enc.startsWith('enc:v1:')).toBe(true)
         expect(decryptTokenPayload(enc)).toBe('{"k":"v"}')
+    })
+
+    describe('before the app is ready (second launch regression)', () => {
+        afterEach(() => {
+            mockAppReady = true
+        })
+
+        test('load() of an encrypted payload does not throw, starts signed out and keeps the stored tokens', () => {
+            const mem = createMemoryStore()
+            const ts = new AuthTokenStore(mem as any)
+            ;(ts as any)._userToken = { data: { Token: 'SECRET_FROM_FIRST_LAUNCH' } }
+            ts.save()
+            const stored = mem.get('user.tokenstore') as string
+
+            mockAppReady = false
+            const early = new AuthTokenStore(mem as any)
+            expect(() => early.load()).not.toThrow()
+            expect(early.load()).toBe(false)
+            expect((early as any)._userToken).toBeUndefined()
+            expect(mem.get('user.tokenstore')).toBe(stored)
+
+            mockAppReady = true
+            const ready = new AuthTokenStore(mem as any)
+            expect(ready.load()).toBe(true)
+            expect((ready as any)._userToken.data.Token).toBe('SECRET_FROM_FIRST_LAUNCH')
+        })
+
+        test('save() never writes plaintext tokens and keeps the stored payload', () => {
+            const mem = createMemoryStore()
+            mem.set('user.tokenstore', 'enc:v1:previous')
+
+            mockAppReady = false
+            const ts = new AuthTokenStore(mem as any)
+            ;(ts as any)._userToken = { data: { Token: 'SECRET_EARLY' } }
+            expect(() => ts.save()).not.toThrow()
+            expect(mem.get('user.tokenstore')).toBe('enc:v1:previous')
+        })
+
+        test('encryptTokenPayload refuses to fall back to plaintext before the app is ready', () => {
+            mockAppReady = false
+            expect(() => encryptTokenPayload('{"k":"v"}')).toThrow()
+        })
     })
 })
