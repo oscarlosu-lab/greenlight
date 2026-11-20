@@ -9,7 +9,7 @@ import StreamPreload from '../../components/ui/streampreload'
 import Ipc from '../../lib/ipc'
 import { applyLowLatencyReceivers, filterIceCandidates, followConsolePicture, logIceList, logSelectedIcePath, logStreamPath, waitForLocalIce } from '../../lib/streamPath'
 import { configureStreamResolution } from '../../lib/streamresolution'
-import { getClarityBoostFilter } from '../../../lib/clarityBoost'
+import { CLARITY_SVG_FILTER_ID, getClaritySharpenKernel, getClarityVideoFilter } from '../../../lib/clarityBoost'
 import { useTranslation } from 'react-i18next'
 
 function Stream() {
@@ -173,23 +173,50 @@ function Stream() {
         }
 
         // Set bitrates & video codec profiles
-        if((streamType === 'cloud') ? settings.xcloud_bitrate : settings.xhome_bitrate > 0){
-            xPlayer.setVideoBitrate((streamType === 'cloud') ? settings.xcloud_bitrate : settings.xhome_bitrate)
+        const targetBitrate = (streamType === 'cloud') ? settings.xcloud_bitrate : settings.xhome_bitrate
+        if(targetBitrate > 0){
+            xPlayer.setVideoBitrate(targetBitrate)
         }
 
-        if(settings.video_profiles.length > 0){
-            xPlayer.setCodecPreferences('video/H264', { profiles: settings.video_profiles || [] }) // 4d = high, 42e = mid, 420 = low
-        }
+        const effectiveVideoProfiles = (settings.video_profiles && settings.video_profiles.length > 0)
+            ? settings.video_profiles
+            : ['4d', '42e', '420'] // Prefer H.264 High (4d), fallback Main (42e) / Baseline (420)
+        xPlayer.setCodecPreferences('video/H264', { profiles: effectiveVideoProfiles })
 
         // Stream is ready so we start the player
         xPlayer.setControllerRumble(settings.controller_vibration)
+
+        const sharpenKernel = getClaritySharpenKernel(settings.clarity_boost_strength)
+        let claritySvgElement: SVGSVGElement | undefined
+        if (sharpenKernel && typeof document.createElementNS === 'function' && document.body) {
+            const existingSvg = document.getElementById('greenlight-clarity-svg')
+            if (existingSvg) {
+                existingSvg.remove()
+            }
+            const svgNS = 'http://www.w3.org/2000/svg'
+            const svg = document.createElementNS(svgNS, 'svg')
+            svg.setAttribute('id', 'greenlight-clarity-svg')
+            svg.setAttribute('width', '0')
+            svg.setAttribute('height', '0')
+            svg.setAttribute('style', 'position:absolute;width:0;height:0;pointer-events:none;')
+            const filter = document.createElementNS(svgNS, 'filter')
+            filter.setAttribute('id', CLARITY_SVG_FILTER_ID)
+            const convolve = document.createElementNS(svgNS, 'feConvolveMatrix')
+            convolve.setAttribute('order', '3')
+            convolve.setAttribute('kernelMatrix', sharpenKernel)
+            convolve.setAttribute('preserveAlpha', 'true')
+            filter.appendChild(convolve)
+            svg.appendChild(filter)
+            document.body.appendChild(svg)
+            claritySvgElement = svg
+        }
 
         const streamHolder = document.getElementById('streamComponent')
         if (streamHolder && typeof streamHolder.querySelector === 'function') {
             const applyFilterIfPresent = () => {
                 const videoElement = streamHolder.querySelector('video')
                 if (videoElement) {
-                    videoElement.style.filter = getClarityBoostFilter(settings.clarity_boost_strength)
+                    videoElement.style.filter = getClarityVideoFilter(settings.clarity_boost_strength, claritySvgElement !== undefined)
                     return true
                 }
                 return false
@@ -392,6 +419,10 @@ function Stream() {
             if(clarityBoostObserver !== undefined){
                 clarityBoostObserver.disconnect()
                 clarityBoostObserver = undefined
+            }
+            if(claritySvgElement !== undefined){
+                claritySvgElement.remove()
+                claritySvgElement = undefined
             }
 
             xPlayer.close()

@@ -23,6 +23,23 @@ export interface FilteredIceCandidatesResult {
     usedTcpFallback: boolean
 }
 
+function iceCandidateLanRank(candidateLine: string): number {
+    const parts = candidateLine.trim().split(/\s+/)
+    const ip = parts[4] || ''
+    const typeIdx = parts.indexOf('typ')
+    const typ = typeIdx >= 0 ? (parts[typeIdx + 1] || '') : ''
+    const isPrivateIpv4 =
+        /^10\./.test(ip) ||
+        /^192\.168\./.test(ip) ||
+        /^172\.(1[6-9]|2\d|3[01])\./.test(ip)
+
+    if (typ === 'host' && isPrivateIpv4) return 0
+    if (typ === 'host') return 1
+    if (typ === 'prflx' || typ === 'srflx') return 2
+    if (typ === 'relay') return 3
+    return 4
+}
+
 export function filterIceCandidates(iceCandidates: ArrayLike<RTCIceCandidate>): FilteredIceCandidatesResult {
     const udpCandidates: Array<{ candidate: string; sdpMLineIndex: number | null; sdpMid: string | null }> = []
     const tcpCandidates: Array<{ candidate: string; sdpMLineIndex: number | null; sdpMid: string | null }> = []
@@ -49,6 +66,7 @@ export function filterIceCandidates(iceCandidates: ArrayLike<RTCIceCandidate>): 
     }
 
     if (udpCandidates.length > 0) {
+        udpCandidates.sort((a, b) => iceCandidateLanRank(a.candidate) - iceCandidateLanRank(b.candidate))
         return {
             candidates: udpCandidates,
             skippedTcp: tcpCandidates.length,
@@ -78,6 +96,9 @@ export function applyLowLatencyReceivers(peer: RTCPeerConnection | undefined, qu
             if(kind === 'video'){
                 rtp.playoutDelayHint = 0
                 rtp.jitterBufferTarget = 0
+                if (receiver.track && 'contentHint' in receiver.track) {
+                    (receiver.track as MediaStreamTrack & { contentHint: string }).contentHint = 'motion'
+                }
             } else {
                 rtp.playoutDelayHint = 0.02
                 rtp.jitterBufferTarget = 20
