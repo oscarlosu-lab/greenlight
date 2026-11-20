@@ -137,8 +137,12 @@ function StreamComponent({
         }
         window.addEventListener('keydown', escapeEvent)
 
-        // Keyboard events
+        // Keyboard events (ignore while typing in systemUi text-entry overlays or inputs)
         const keyboardPressEvent = (e) => {
+            const target = e.target as HTMLElement | null
+            if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+                return
+            }
             switch (e.keyCode) {
                 case 126:
                     toggleDebug()

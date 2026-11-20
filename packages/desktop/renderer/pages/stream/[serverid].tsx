@@ -11,6 +11,7 @@ import CompactGamepadDriver from '../../lib/gamepaddriver'
 import { setMouseSensitivity } from '../../lib/mousesensitivitypatch'
 import { applyKeyboardSticks } from '../../lib/keyboardsticks'
 import { applyEscapeAsHome, pressHomeButton } from '../../lib/escapekey'
+import { applyRemoteOfferErrorHandling, applySystemUiSupport, clearSystemUiOverlays, SYSTEM_UI_CAPABILITIES } from '../../lib/systemui'
 import { applyLowLatencyReceivers, filterIceCandidates, followConsolePicture, logIceList, logSelectedIcePath, logStreamPath, waitForLocalIce } from '../../lib/streamPath'
 import { configureStreamResolution } from '../../lib/streamresolution'
 import { CLARITY_SVG_FILTER_ID, getClaritySharpenKernel, getClarityVideoFilter } from '../../../lib/clarityBoost'
@@ -99,9 +100,11 @@ function Stream() {
                         // Start xPlayer interface
                         setMouseSensitivity(settings.input_mouse_sensitivity)
                         applyKeyboardSticks()
+                        applySystemUiSupport()
                         applyEscapeAsHome()
+                        applyRemoteOfferErrorHandling()
                         setxPlayer(new xCloudPlayer('streamComponent', {
-                            ui_systemui: [],
+                            ui_systemui: SYSTEM_UI_CAPABILITIES,
                             input_touch: settings.input_touch || false,
                             input_mousekeyboard: settings.input_mousekeyboard || false,
                             input_legacykeyboard: !(settings.input_newgamepad || settings.input_mousekeyboard),
@@ -438,6 +441,7 @@ function Stream() {
                 claritySvgElement.remove()
                 claritySvgElement = undefined
             }
+            clearSystemUiOverlays()
 
             xPlayer.close()
         }
