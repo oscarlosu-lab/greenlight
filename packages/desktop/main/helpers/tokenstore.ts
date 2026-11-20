@@ -9,6 +9,7 @@ export function encryptTokenPayload(plaintextJson: string): string {
         const encrypted = safeStorage.encryptString(plaintextJson)
         return ENCRYPTED_PREFIX + encrypted.toString('base64')
     }
+    console.warn('AuthTokenStore: OS safeStorage encryption is unavailable; falling back to unencrypted token storage.')
     return plaintextJson
 }
 
