@@ -40,6 +40,7 @@ export default class xCloudApi {
     get(url: string, method = 'GET') {
         return new Promise((resolve, reject) => {
             let responseData = ''
+            let settled = false
 
             const req = https.request({
                 host: this._host,
@@ -55,6 +56,11 @@ export default class xCloudApi {
                 })
 
                 response.on('end', () => {
+                    if(settled){
+                        return
+                    }
+                    settled = true
+
                     if(response.statusCode >= 200 && response.statusCode <= 299){
                         this._application.log('xCloudApi', 'get('+url+', '+method+') resolve:', response.statusCode)
                         let returnData = responseData
@@ -89,6 +95,10 @@ export default class xCloudApi {
             })
 
             req.on('error', (error) => {
+                if(settled){
+                    return
+                }
+                settled = true
                 reject(error)
             })
             req.end()
@@ -98,6 +108,7 @@ export default class xCloudApi {
     post(url: string, postData = {}, headers = {}) {
         return new Promise((resolve, reject) => {
             let responseData = ''
+            let settled = false
             const mergedHeaders = Object.assign({}, {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer '+this._token,
@@ -115,6 +126,11 @@ export default class xCloudApi {
                 })
 
                 response.on('end', () => {
+                    if(settled){
+                        return
+                    }
+                    settled = true
+
                     if(response.statusCode >= 200 && response.statusCode <= 299){
                         this._application.log('xCloudApi', 'post('+url+') resolve:', response.statusCode, responseData)
 
@@ -138,6 +154,10 @@ export default class xCloudApi {
             })
 
             req.on('error', (error) => {
+                if(settled){
+                    return
+                }
+                settled = true
                 reject(error)
             })
 

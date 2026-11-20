@@ -36,7 +36,7 @@ function ViewportGrid({
             if(now-resizeLastUpdate > 250){
                 const element = document.getElementById('component_viewportgrid_'+randomId)
 
-                if(element === null || element.parentElement === null)
+                if(element === null || element.parentElement === null || element.parentElement.parentElement === null)
                     return
 
                 const parentHeight = element.parentElement.parentElement.offsetTop+element.parentElement.parentElement.clientHeight

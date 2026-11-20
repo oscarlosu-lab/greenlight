@@ -26,12 +26,12 @@ function StreamComponent({
     }
 
     let lastMovement = 0
-    // let gamebarElement = document.getElementById('component_streamcomponent_gamebar')
-    let debugElement = document.getElementById('component_streamcomponent_debug')
     let webRtcStatsInterval
 
     const [micStatus, setMicStatus] = React.useState(false)
     const [waitingSeconds, setWaitingSeconds] = React.useState(0)
+    const waitingIntervalRef = React.useRef<ReturnType<typeof setInterval> | undefined>(undefined)
+    const isMountedRef = React.useRef(true)
 
 
 
@@ -71,8 +71,9 @@ function StreamComponent({
     }
 
     React.useEffect(() => {
+        isMountedRef.current = true
 
-        Ipc.onAction('streaming', 'onQueue', (event, waitingTimes) => {
+        const onQueueListener = Ipc.onAction('streaming', 'onQueue', (event, waitingTimes) => {
             console.log('Waiting times:', waitingTimes)
             drawWaitingTimes(waitingTimes.estimatedTotalWaitTimeInSeconds)
         })
@@ -174,6 +175,9 @@ function StreamComponent({
         webRtcStatsInterval = setInterval(() => {
             if (xPlayer._webrtcClient !== undefined) {
                 xPlayer._webrtcClient.getStats().then((stats) => {
+                    if (!isMountedRef.current) {
+                        return
+                    }
                     let statsOutput = ''
 
                     stats.forEach((report) => {
@@ -202,7 +206,10 @@ function StreamComponent({
                                 Object.keys(report).forEach((statName) => {
                                     statsOutput += `<strong>${statName}:</strong> ${report[statName]}<br>\n`
                                 })
-                                document.querySelector('div#component_streamcomponent_debug_text').innerHTML = statsOutput
+                                const debugText = document.querySelector('div#component_streamcomponent_debug_text')
+                                if (debugText !== null) {
+                                    debugText.innerHTML = statsOutput
+                                }
                                 frameCountDomUpdate = 0
                             } else {
                                 frameCountDomUpdate++
@@ -211,6 +218,8 @@ function StreamComponent({
                     })
 
                     // document.querySelector('div#component_streamcomponent_debug_text').innerHTML = statsOutput;
+                }).catch(() => {
+                    // Ignore stats errors when peer connection closes
                 })
             }
         }, 33)
@@ -252,25 +261,31 @@ function StreamComponent({
 
         // cleanup this component
         return () => {
+            isMountedRef.current = false
             window.removeEventListener('mousemove', mouseEvent)
             window.removeEventListener('mousedown', mouseEvent)
             window.removeEventListener('keypress', keyboardPressEvent)
             clearInterval(mouseInterval)
+            Ipc.removeListener('streaming', onQueueListener)
 
-            // ipcRenderer.removeAllListeners('xcloud');
+            if (waitingIntervalRef.current !== undefined) {
+                clearInterval(waitingIntervalRef.current)
+                waitingIntervalRef.current = undefined
+            }
 
             if (webRtcStatsInterval) {
                 clearInterval(webRtcStatsInterval)
             }
 
-            const jitterChart = document.getElementById('component_streamcomponent_debug_webrtc_jitter')
-            if (jitterChart !== null) {
-                jitterChart.innerHTML = ''
+            jitterUplot.destroy()
+            droppedUplot.destroy()
+            const jitterEl = document.getElementById('component_streamcomponent_debug_webrtc_jitter')
+            if (jitterEl !== null) {
+                jitterEl.innerHTML = ''
             }
-
-            const droppedChart = document.getElementById('component_streamcomponent_debug_webrtc_dropped')
-            if (droppedChart !== null) {
-                droppedChart.innerHTML = ''
+            const droppedEl = document.getElementById('component_streamcomponent_debug_webrtc_dropped')
+            if (droppedEl !== null) {
+                droppedEl.innerHTML = ''
             }
         }
     }, [])
@@ -288,22 +303,29 @@ function StreamComponent({
     }
 
     function streamDisconnect() {
-        document.getElementById('streamComponentHolder').innerHTML = ''
+        const holder = document.getElementById('streamComponentHolder')
+        if (holder !== null) {
+            holder.innerHTML = ''
+        }
 
         xPlayer.close()
     }
 
     function endStream() {
         if (confirm(t("streamWindow.endStreamConfirmMessage"))) {
-            document.getElementById('streamComponentHolder').innerHTML = ''
-            onDisconnect()
+            const holder = document.getElementById('streamComponentHolder')
+            if (holder !== null) {
+                holder.innerHTML = ''
+            }
+            onDisconnect?.()
             xPlayer.close()
         }
     }
 
     function toggleDebug() {
+        const debugElement = document.getElementById('component_streamcomponent_debug')
         if (debugElement === null) {
-            debugElement = document.getElementById('component_streamcomponent_debug')
+            return
         }
 
         if (debugElement.className.includes('hidden')) {
@@ -314,28 +336,51 @@ function StreamComponent({
     }
 
     function drawWaitingTimes(seconds) {
-        if (seconds !== false) {
-            setWaitingSeconds(seconds)
+        if (waitingIntervalRef.current !== undefined) {
+            clearInterval(waitingIntervalRef.current)
+            waitingIntervalRef.current = undefined
+        }
 
-            const formattedWaitingTime = formatWaitingTime(seconds)
+        if (seconds !== false) {
+            let remainingSeconds = Math.max(0, Number(seconds) || 0)
+            setWaitingSeconds(remainingSeconds)
+
+            const formattedWaitingTime = formatWaitingTime(remainingSeconds)
             const html = '<div>' + t("streamWindow.estimatedWaitingTimeMessage") + ' ' + '<span id="component_streamcomponent_waitingtimes_seconds">' + formattedWaitingTime + '</span></div>'
 
-            document.getElementById('component_streamcomponent_waitingtimes').innerHTML = html
+            const waitingTimesElement = document.getElementById('component_streamcomponent_waitingtimes')
+            if (waitingTimesElement !== null) {
+                waitingTimesElement.innerHTML = html
+            }
+
+            if (remainingSeconds <= 0) {
+                return
+            }
 
             const secondsInterval = setInterval(() => {
-                seconds--
-                setWaitingSeconds(seconds)
+                remainingSeconds = Math.max(0, remainingSeconds - 1)
+                setWaitingSeconds(remainingSeconds)
 
-                if (document.getElementById('component_streamcomponent_waitingtimes') !== null) {
-                    document.getElementById('component_streamcomponent_waitingtimes_seconds').innerText = formatWaitingTime(seconds)
+                const waitingContainer = document.getElementById('component_streamcomponent_waitingtimes')
+                const waitingSecondsEl = document.getElementById('component_streamcomponent_waitingtimes_seconds')
+                if (waitingContainer !== null && waitingSecondsEl !== null) {
+                    waitingSecondsEl.innerText = formatWaitingTime(remainingSeconds)
                 } else {
                     clearInterval(secondsInterval)
+                    if (waitingIntervalRef.current === secondsInterval) {
+                        waitingIntervalRef.current = undefined
+                    }
                 }
 
-                if (seconds === 0) {
+                if (remainingSeconds <= 0) {
                     clearInterval(secondsInterval)
+                    if (waitingIntervalRef.current === secondsInterval) {
+                        waitingIntervalRef.current = undefined
+                    }
                 }
             }, 1000)
+
+            waitingIntervalRef.current = secondsInterval
         }
     }
 
@@ -398,7 +443,7 @@ function StreamComponent({
                             marginRight: 'auto',
                         }}>
                             <Button label={<span><i className="fa-brands fa-xbox"></i> {t("streamWindow.menuBtn")}</span>} title={t("streamWindow.menuTitle")} onClick={(e) => {
-                                e.target.blur(); onMenu()
+                                e.target.blur(); onMenu?.()
                             }}></Button> &nbsp;
                             <Button label={(micStatus === false) ? <span><i className="fa-solid fa-microphone-slash"></i> {t("streamWindow.micMuted")}</span> : <span><i className="fa-solid fa-microphone"></i> {t("streamWindow.micActive")}</span>} title={(micStatus === false) ? t("streamWindow.enableMic") : t("streamWindow.disableMic")} className={(micStatus === false) ? 'btn-cancel' : 'btn-primary'} onClick={(e) => {
                                 e.target.blur(); toggleMic()

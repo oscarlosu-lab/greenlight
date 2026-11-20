@@ -26,6 +26,8 @@ export default class IpcxCloud extends IpcBase {
 
     _newTitles = []
     _newTitlesLastUpdate = 0
+    private _waitEntries: Set<{ timeoutId: ReturnType<typeof setTimeout>; resolveCallback: (value: any) => void }> = new Set()
+    private _isDestroyed = false
 
     constructor(application:Application){
         super(application)
@@ -195,16 +197,42 @@ export default class IpcxCloud extends IpcBase {
         })
     }
 
-    waitForTitle(resolveCallback, args:getTitleArgs){
-        setTimeout(() => {
+    waitForTitle(resolveCallback, args:getTitleArgs, attempts = 0){
+        if(this._isDestroyed || attempts >= 150){
+            resolveCallback(undefined)
+            return
+        }
+
+        const entry = {
+            timeoutId: undefined as unknown as ReturnType<typeof setTimeout>,
+            resolveCallback,
+        }
+        entry.timeoutId = setTimeout(() => {
+            this._waitEntries.delete(entry)
+            if(this._isDestroyed){
+                resolveCallback(undefined)
+                return
+            }
+
             if(this._titlesAreLoaded === false){
                 this._application.log('Ipc:xCloud', 'Titles not loaded yet. Queueing title:', args.titleId, this._titlesAreLoaded, this._titleManager._xCloudTitles)
-                this.waitForTitle(resolveCallback, args)
+                this.waitForTitle(resolveCallback, args, attempts + 1)
             } else {
                 const title = this._titleManager.findTitle(args.titleId)
 
                 resolveCallback(title)
             }    
         }, 200)
+        this._waitEntries.add(entry)
+    }
+
+    destroy(): void {
+        this._isDestroyed = true
+        const entries = Array.from(this._waitEntries)
+        this._waitEntries.clear()
+        for(const entry of entries){
+            clearTimeout(entry.timeoutId)
+            entry.resolveCallback(undefined)
+        }
     }
 }

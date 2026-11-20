@@ -8,24 +8,33 @@ function SidebarFriends() {
     const { t } = useTranslation()
 
     React.useEffect(() => {
+        let isMounted = true
 
         const updateFriends = () => {
             Ipc.send('app', 'getOnlineFriends').then((onlineFriends) => {
-                setOnlineFriends(onlineFriends)
+                if (isMounted) {
+                    setOnlineFriends(onlineFriends)
+                }
+            }).catch(() => {
+                // Ignore IPC errors on unmount
             })
         }
-        setTimeout(() => {
+        const t1 = setTimeout(() => {
             updateFriends()
         }, 1000)
-        setTimeout(() => {
+        const t2 = setTimeout(() => {
             updateFriends()
         }, 2000)
-        setTimeout(() => {
+        const t3 = setTimeout(() => {
             updateFriends()
         }, 3000)
         const friendsInterval = setInterval(updateFriends, 1000*15)
 
         return () => {
+            isMounted = false
+            clearTimeout(t1)
+            clearTimeout(t2)
+            clearTimeout(t3)
             clearInterval(friendsInterval)
         }
     }, [])

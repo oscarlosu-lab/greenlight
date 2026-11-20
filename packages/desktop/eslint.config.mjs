@@ -15,7 +15,7 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
-    globalIgnores(["**/node_modules", "**/dist", "**/app", "**/flatpak", "**/xal-node/", "**/.next"]),
+    globalIgnores(["**/node_modules", "**/dist", "**/app", "**/.next", "**/flatpak", "**/xal-node/"]),
     {
         extends: compat.extends(
             // "plugin:@next/next/recommended",

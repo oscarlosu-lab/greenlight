@@ -22,7 +22,7 @@ import {
 // This default export is required in a new `pages/_app.js` file.
 export default function MyApp({ Component, pageProps }) {
     const router = useRouter()
-    const queryClient = new QueryClient()
+    const [queryClient] = React.useState(() => new QueryClient())
 
     const [loggedIn, setLoginState] = React.useState(false)
     const [prevUserState, setPrevUserState] = React.useState({
@@ -37,7 +37,13 @@ export default function MyApp({ Component, pageProps }) {
     const [isLoading, setIsLoading] = React.useState(false)
 
     React.useEffect(() => {
+        let isMounted = true
+        let autoStreamTimeout: ReturnType<typeof setTimeout> | undefined
+
         Ipc.send('app', 'loadCachedUser').then((user) => {
+            if (!isMounted) {
+                return
+            }
             setPrevUserState({
                 signedIn: user.signedIn,
                 gamertag: user.gamertag,
@@ -45,46 +51,63 @@ export default function MyApp({ Component, pageProps }) {
                 gamerscore: user.gamerscore,
                 level: user.level,
             })
+        }).catch(() => {
+            // Ignore startup cache read errors
         })
 
         const authInterval = setInterval(() => {
             console.log('Requesting AuthState...')
             Ipc.send('app', 'getAuthState').then((args) => {
+                if (!isMounted) {
+                    return
+                }
                 console.log('Received AuthState:', args)
 
                 if(args.isAuthenticating === true){
                     setIsLoading(true)
-                    setPrevUserState({ ...prevUserState, ...args.user})
+                    setPrevUserState((prev) => ({ ...prev, ...args.user}))
 
                 } else if(args.isAuthenticated === true && args.user.signedIn === true){
                     clearInterval(authInterval)
 
                     // After successful authentication, load and apply language setting
                     Ipc.send('settings', 'getSettings').then(settings => {
+                        if (!isMounted) {
+                            return
+                        }
                         if (settings.language) {
                             const i18n = require('../lib/i18n').default;
                             i18n.changeLanguage(settings.language);
                         }
+                    }).catch(() => {
+                        // Ignore settings read errors
                     });
 
                     if(loggedIn === false){
                         Ipc.send('app', 'onUiShown').then((result) => {
+                            if (!isMounted) {
+                                return
+                            }
                             if(result.autoStream !== '')
-                                setTimeout(() => {
+                                autoStreamTimeout = setTimeout(() => {
                                     router.push('stream/'+result.autoStream)
                                 }, 1000)
+                        }).catch(() => {
+                            // Ignore onUiShown errors
                         })
                     }
 
                     setLoginState(true)
-                    setPrevUserState({ ...prevUserState, ...args.user})
+                    setPrevUserState((prev) => ({ ...prev, ...args.user}))
                 }
+            }).catch(() => {
+                // Ignore auth polling errors
             })
         }, 500)
 
         const errorHandler = function(event) {
             console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').')
-            if(event.reason.status){
+            if(event.reason && event.reason.status){
                 alert('HTTP Status: ' + event.reason.status + '\nPath:' + event.reason.url + '\n' + event.reason.body)
             } else {
                 alert(event.reason)
@@ -94,7 +117,11 @@ export default function MyApp({ Component, pageProps }) {
 
         // cleanup this component
         return () => {
+            isMounted = false
             window.removeEventListener('unhandledrejection', errorHandler)
+
+            if(autoStreamTimeout !== undefined)
+                clearTimeout(autoStreamTimeout)
 
             if(authInterval)
                 clearInterval(authInterval)

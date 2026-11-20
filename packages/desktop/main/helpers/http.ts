@@ -12,6 +12,7 @@ export default class Http {
     get(host:string, url: string, method = 'GET') {
         return new Promise((resolve, reject) => {
             let responseData = ''
+            let settled = false
 
             const req = https.request({
                 host: host,
@@ -26,6 +27,11 @@ export default class Http {
                 })
 
                 response.on('end', () => {
+                    if(settled){
+                        return
+                    }
+                    settled = true
+
                     if(response.statusCode >= 200 && response.statusCode <= 299){
                         this._application.log('HTTP', 'get('+url+', '+method+') resolve:', response.statusCode)
                         let returnData = responseData
@@ -38,7 +44,7 @@ export default class Http {
                         if(response.statusCode === 204){
                             // We have to retry..
                             setTimeout(() => {
-                                this.get(url, method).then((result) => {
+                                this.get(host, url, method).then((result) => {
                                     resolve(result)
 
                                 }).catch((error) => {
@@ -60,6 +66,10 @@ export default class Http {
             })
 
             req.on('error', (error) => {
+                if(settled){
+                    return
+                }
+                settled = true
                 reject(error)
             })
             req.end()
@@ -69,6 +79,7 @@ export default class Http {
     post(host: string, url: string, postData = {}, headers = {}) {
         return new Promise((resolve, reject) => {
             let responseData = ''
+            let settled = false
             const mergedHeaders = Object.assign({}, {
                 'Content-Type': 'application/json',
             }, headers)
@@ -85,6 +96,11 @@ export default class Http {
                 })
 
                 response.on('end', () => {
+                    if(settled){
+                        return
+                    }
+                    settled = true
+
                     if(response.statusCode >= 200 && response.statusCode <= 299){
                         this._application.log('HTTP', 'post('+url+') resolve:', response.statusCode, responseData.substring(0, 100))
 
@@ -108,6 +124,10 @@ export default class Http {
             })
 
             req.on('error', (error) => {
+                if(settled){
+                    return
+                }
+                settled = true
                 reject(error)
             })
 

@@ -128,7 +128,7 @@ export function showUpdateDialog(release: GithubReleaseObject) {
         })
 }
 
-const showDialog = (detail: string, type: string = 'info') => {
+const showDialog = (detail: string, type: 'none' | 'info' | 'error' | 'question' | 'warning' = 'info') => {
     electron.dialog.showMessageBox(
         {
             title: electron.app.getName(),

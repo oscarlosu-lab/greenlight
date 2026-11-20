@@ -6,15 +6,23 @@ export default class xboxWorker {
     
     _friends = {}
     _onlineFriends = {}
+    _interval: ReturnType<typeof setInterval> | undefined
 
     constructor(application){
         this._application = application
 
-        setInterval(() => {
+        this._interval = setInterval(() => {
             this.intervalFriends() 
         }, 30 * 1000) // Api is limited to 30 requests per 300 seconds. (300/30 = 10 sec)
         
         this.intervalFriends()
+    }
+
+    destroy(): void {
+        if(this._interval !== undefined){
+            clearInterval(this._interval)
+            this._interval = undefined
+        }
     }
 
     intervalFriends(){

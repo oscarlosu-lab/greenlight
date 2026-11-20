@@ -100,7 +100,7 @@ function SettingsInput() {
         return () => {
             clearInterval(controllerInterval)
         }
-    })
+    }, [])
 
     function setControllerVibration(){
         setSettings({

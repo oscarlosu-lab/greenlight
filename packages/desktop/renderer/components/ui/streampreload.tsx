@@ -14,46 +14,42 @@ function StreamPreload({
     waitingTime = 0,
 }: StreamPreloadProps) {
     const { t } = useTranslation()
-    const [waitingSeconds, setWaitingSeconds] = React.useState(-1)
-    // console.log('outeffect', waitingTime, waitingSeconds)
-
-    if(waitingSeconds < 0 && waitingTime > 0){
-        // console.log('setWaitingSeconds', waitingTime)
-        setWaitingSeconds(waitingTime)
-
-    } else if(waitingSeconds > 0){
-        // console.log('drawWaitingTimes', waitingSeconds)
-        drawWaitingTimes(waitingSeconds)
-    }
+    const [waitingSeconds, setWaitingSeconds] = React.useState(waitingTime > 0 ? waitingTime : 0)
 
     React.useEffect(() => {
-
-        return () => {
-
+        if (waitingTime <= 0) {
+            return
         }
-    }, [])
 
-    function drawWaitingTimes(seconds){
-        const formattedWaitingTime = formatWaitingTime(seconds)
-        const html = '<div>' + t("streamWindow.estimatedWaitingTimeMessage") + ' ' + '<span id="component_streamcomponent_waitingtimes_seconds">'+formattedWaitingTime+'</span></div>'
+        let remainingSeconds = waitingTime
+        setWaitingSeconds(remainingSeconds)
 
-        document.getElementById('component_streamcomponent_waitingtimes').innerHTML = html
+        const formattedWaitingTime = formatWaitingTime(remainingSeconds)
+        const waitingContainer = document.getElementById('component_streamcomponent_waitingtimes')
+        if (waitingContainer !== null) {
+            waitingContainer.innerHTML = '<div>' + t("streamWindow.estimatedWaitingTimeMessage") + ' ' + '<span id="component_streamcomponent_waitingtimes_seconds">' + formattedWaitingTime + '</span></div>'
+        }
 
         const secondsInterval = setInterval(() => {
-            seconds--
-            setWaitingSeconds(seconds)
+            remainingSeconds = Math.max(0, remainingSeconds - 1)
+            setWaitingSeconds(remainingSeconds)
 
-            if(document.getElementById('component_streamcomponent_waitingtimes_seconds') !== null){
-                document.getElementById('component_streamcomponent_waitingtimes_seconds').innerText = formatWaitingTime(seconds)
+            const secondsEl = document.getElementById('component_streamcomponent_waitingtimes_seconds')
+            if (secondsEl !== null) {
+                secondsEl.innerText = formatWaitingTime(remainingSeconds)
             } else {
                 clearInterval(secondsInterval)
             }
 
-            if(seconds === 0){
+            if (remainingSeconds <= 0) {
                 clearInterval(secondsInterval)
             }
         }, 1000)
-    }
+
+        return () => {
+            clearInterval(secondsInterval)
+        }
+    }, [waitingTime])
 
     function streamDisconnect(){
         window.history.back()
@@ -61,7 +57,7 @@ function StreamPreload({
 
     function endStream(){
         if(confirm(t('streamWindow.endStreamConfirmMessage'))){
-            onDisconnect()
+            onDisconnect?.()
             window.history.back()
         }
     }

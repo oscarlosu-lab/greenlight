@@ -20,9 +20,18 @@ export default class StreamManager {
     _application:Application
 
     _sessions = {}
+    _monitorTimeouts: Record<string, ReturnType<typeof setTimeout>> = {}
     
     constructor(application){
         this._application = application
+    }
+
+    clearMonitorTimeout(sessionId: string): void {
+        const timeoutId = this._monitorTimeouts[sessionId]
+        if(timeoutId !== undefined){
+            clearTimeout(timeoutId)
+            delete this._monitorTimeouts[sessionId]
+        }
     }
 
     getApi(type):xCloudApi{
@@ -63,6 +72,8 @@ export default class StreamManager {
     }
 
     stopStream(sessionId){
+        this.clearMonitorTimeout(sessionId)
+
         return new Promise((resolve, reject) => {
             const session = this.getSession(sessionId)
             if(session === undefined){
@@ -150,7 +161,10 @@ export default class StreamManager {
     }
 
     monitorSession(sessionId){
-        setTimeout(() => {
+        this.clearMonitorTimeout(sessionId)
+
+        this._monitorTimeouts[sessionId] = setTimeout(() => {
+            delete this._monitorTimeouts[sessionId]
             this._application.log('StreamManager', 'monitorSession('+sessionId+') checking state')
 
             const session = this.getSession(sessionId)
@@ -158,13 +172,17 @@ export default class StreamManager {
                 this._application.log('StreamManager', 'monitorSession('+sessionId+') session not found')
                 return
             }
-            this.getApi(this.getSession(sessionId).type).getStreamState(sessionId).then((result:any) => {
+            this.getApi(session.type).getStreamState(sessionId).then((result:any) => {
+                const currentSession = this.getSession(sessionId)
+                if(currentSession === undefined){
+                    return
+                }
                 console.log('Streammanager - state:', result)
 
-                this.getSession(sessionId).state = result.state
+                currentSession.state = result.state
 
                 if(result.state === 'Provisioned'){
-                    this.getSession(sessionId).playerState = 'started'
+                    currentSession.playerState = 'started'
 
                 } else if(result.state === 'Provisioning'){
                     // Lets loop again
@@ -174,35 +192,57 @@ export default class StreamManager {
                     // Do MSAL Auth
                     // @TODO: Refresh token if expired?
                     this._application._authentication._msal.getMsalToken().then((msalToken) => {
-                        this.getApi(this.getSession(sessionId).type).sendMSALAuth(sessionId, msalToken.data.lpt).then(() => {
-                            this.monitorSession(sessionId)
+                        const activeSession = this.getSession(sessionId)
+                        if(activeSession === undefined){
+                            return
+                        }
+                        this.getApi(activeSession.type).sendMSALAuth(sessionId, msalToken.data.lpt).then(() => {
+                            if(this.getSession(sessionId) !== undefined){
+                                this.monitorSession(sessionId)
+                            }
 
                         }).catch((error) => {
-                            console.log('MSAL AUTH Error:', error)
-                            alert('MSAL AUTH Error:'+ error)
+                            this._application.log('StreamManager', 'MSAL AUTH Error:', error)
+                            const failedSession = this.getSession(sessionId)
+                            if(failedSession !== undefined){
+                                failedSession.errorDetails = {
+                                    code: 'MSALAuthError',
+                                    message: error instanceof Error ? error.message : String(error),
+                                }
+                                failedSession.playerState = 'failed'
+                            }
                         })
                     }).catch((error) => {
-                        console.log('MSAL AUTH Error:', error)
-                        alert('MSAL AUTH Error:'+ error)
+                        this._application.log('StreamManager', 'MSAL AUTH Error:', error)
+                        const failedSession = this.getSession(sessionId)
+                        if(failedSession !== undefined){
+                            failedSession.errorDetails = {
+                                code: 'MSALAuthError',
+                                message: error instanceof Error ? error.message : String(error),
+                            }
+                            failedSession.playerState = 'failed'
+                        }
                     })
 
                 } else if(result.state === 'WaitingForResources'){
                     // Do Queue logic
-                    if(this.getSession(sessionId).waitingTimes === undefined){
-                        this.getApi(this.getSession(sessionId).type).getWaitingTimes(this.getSession(sessionId).target).then((waitingTimes) => {
-                            this.getSession(sessionId).waitingTimes = waitingTimes
-                            this.getSession(sessionId).playerState = 'queued'
-
-                        }).catch((error) => {
-                            console.log('Streammanager - error getting waiting times:', sessionId, error)
+                    if(currentSession.waitingTimes === undefined){
+                        this.getApi(currentSession.type).getWaitingTimes(currentSession.target).then((waitingTimes) => {
+                            const activeSession = this.getSession(sessionId)
+                            if(activeSession !== undefined){
+                                activeSession.waitingTimes = waitingTimes
+                                activeSession.playerState = 'queued'
+                            }
+                        }).catch((err) => {
+                            this._application.log('StreamManager', 'Error getting waiting times:', err)
                         })
                     }
                     
                     this.monitorSession(sessionId)
 
                 } else if(result.state === 'Failed'){
-                    this.getSession(sessionId).errorDetails = result.errorDetails
-                    this.getSession(sessionId).playerState = 'failed'
+                    currentSession.errorDetails = result.errorDetails
+                    currentSession.playerState = 'failed'
 
                 } else {
                     
@@ -212,8 +252,14 @@ export default class StreamManager {
             }).catch((error) => {
                 console.log('Streammanager - error checking state:', sessionId, error)
 
+                const activeSession = this.getSession(sessionId)
+                if(activeSession === undefined){
+                    return
+                }
+
                 if(error.status === 404){
                     this._application.log('StreamManager', 'Session not found on server. Removing session...')
+                    this.clearMonitorTimeout(sessionId)
                     delete this._sessions[sessionId]
                 } else {
                     this.monitorSession(sessionId)

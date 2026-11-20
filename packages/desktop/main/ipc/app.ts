@@ -140,7 +140,7 @@ export default class IpcApp extends IpcBase {
     async debug(){
         const returnValue = []
 
-        const gpuInfo = await electron.app.getGPUInfo('complete')
+        const gpuInfo = await electron.app.getGPUInfo('complete') as { auxAttributes?: { glRenderer?: string } }
 
         // Application Values
         returnValue.push({
@@ -148,7 +148,7 @@ export default class IpcApp extends IpcBase {
             data: [
                 { name: 'Name', value: 'Greenlight' },
                 { name: 'Version', value: electron.app.getVersion() },
-                { name: 'GPU Info', value: gpuInfo.auxAttributes.glRenderer },
+                { name: 'GPU Info', value: gpuInfo?.auxAttributes?.glRenderer ?? '' },
             ],
         })
 

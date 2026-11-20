@@ -14,24 +14,32 @@ function SettingsWebUI() {
     const { t } = useTranslation()
 
     React.useEffect(() => {
-        const webuiStatusInterval = setInterval(() => {
-            Ipc.send('settings', 'getWebUIStatus').then((status) => {
-                setWebuiRunning(status)
-            })
-        }, 1000)
+        let isMounted = true
 
-        Ipc.send('settings', 'getWebUIStatus').then((status) => {
-            setWebuiRunning(status)
-        })
+        const pollStatus = () => {
+            Ipc.send('settings', 'getWebUIStatus').then((status) => {
+                if (isMounted) {
+                    setWebuiRunning(status)
+                }
+            }).catch(() => {
+                // Ignore WebUI status polling errors on teardown
+            })
+        }
+
+        const webuiStatusInterval = setInterval(pollStatus, 1000)
+        pollStatus()
 
         return () => {
+            isMounted = false
             clearInterval(webuiStatusInterval)
         }
-    })
+    }, [])
 
     function setWebUIEnabled(){
         Ipc.send('settings', (webuiRunning) ? 'stopWebUI' : 'startWebUI').then((status) => {
             setWebuiRunning(status)
+        }).catch(() => {
+            // Ignore toggle errors
         })
     }
 
