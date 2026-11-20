@@ -93,6 +93,8 @@
         "enableTouch": "Enable Touch input",
         "enableMouseKeyboard": "Enable Mouse & Keyboard",
         "legacyWarning": "Mouse & Keyboard and Keyboard to Gamepad cannot be active at the same time",
+        "enableLocalCoop": "Enable local co-op (multi-controller)",
+        "enableLocalCoopDescription": "Allow up to 4 connected controllers during Remote Play sessions (opt-in so extra devices do not join automatically)",
         "enableLegacy": "Enable Keyboard to Gamepad",
         "enableLegacyDescription": "Disabling this feature will disable the keyboard to gamepad mapping and only allows controls from the gamepad.",
         "controllerDetectedTitle": "Controllers detected",

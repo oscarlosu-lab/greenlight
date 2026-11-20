@@ -108,7 +108,9 @@ function Stream() {
                             input_touch: settings.input_touch || false,
                             input_mousekeyboard: settings.input_mousekeyboard || false,
                             input_legacykeyboard: !(settings.input_newgamepad || settings.input_mousekeyboard),
-                            input_driver: new CompactGamepadDriver(),
+                            input_driver: new CompactGamepadDriver({
+                                localCoopEnabled: Boolean(settings.input_local_coop),
+                            }),
                             input_mousekeyboard_config: settings.input_mousekeyboard_config !== undefined ? {
                                 _keymapping: settings.input_mousekeyboard_config,
                             } : undefined as any,

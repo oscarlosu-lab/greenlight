@@ -10,6 +10,12 @@ export default class CompactGamepadDriver extends GamepadDriver {
 
     _vibrationIntervals = {}
     _runTimeout: ReturnType<typeof setTimeout>
+    localCoopEnabled = false
+
+    constructor(options?: { localCoopEnabled?: boolean }){
+        super()
+        this.localCoopEnabled = Boolean(options?.localCoopEnabled)
+    }
 
     start(){
         this._activeGamepads = { 0: false, 1: false, 2: false, 3: false }
@@ -19,6 +25,10 @@ export default class CompactGamepadDriver extends GamepadDriver {
                 return
             }
             this.handleVibration()
+
+            if(!this.localCoopEnabled){
+                return
+            }
 
             const connected = this.connectedGamepads().length
             // Controller 0 is always connected on the console side
@@ -60,7 +70,9 @@ export default class CompactGamepadDriver extends GamepadDriver {
     }
 
     requestStates(){
-        return this.connectedGamepads().map((gamepad, index) => {
+        const gamepads = this.connectedGamepads()
+        const active = this.localCoopEnabled ? gamepads.slice(0, 4) : gamepads.slice(0, 1)
+        return active.map((gamepad, index) => {
             const state = this.mapStateLabels(gamepad.buttons, gamepad.axes)
             state.GamepadIndex = index
             return state

@@ -39,6 +39,7 @@ export const defaultSettings = {
         n: 'Nexus',
     },
     input_newgamepad: false,
+    input_local_coop: false,
     app_lowresolution: false,
     clarity_boost_strength: 0,
 

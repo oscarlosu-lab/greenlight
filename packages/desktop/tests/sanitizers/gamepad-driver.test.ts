@@ -69,4 +69,57 @@ describe('CompactGamepadDriver sanitizers', () => {
 
         Object.defineProperty(global, 'navigator', { configurable: true, value: origNavigator })
     })
+
+    test('localCoopEnabled defaults to false (single controller) and announces controllers 1..3 only when enabled', () => {
+        const origWindow = (global as any).window
+        const origNavigator = (global as any).navigator
+        const fakeButtons = (n: number) => Array.from({ length: n }, () => ({ pressed: false, value: 0 }))
+        const twoPads = [
+            { id: 'Pad 1', connected: true, mapping: 'standard', buttons: fakeButtons(17), axes: [0, 0, 0, 0] },
+            { id: 'Pad 2', connected: true, mapping: 'standard', buttons: fakeButtons(17), axes: [0, 0, 0, 0] },
+        ]
+
+        Object.defineProperty(global, 'window', {
+            configurable: true,
+            value: { addEventListener: jest.fn(), removeEventListener: jest.fn() },
+        })
+        Object.defineProperty(global, 'navigator', {
+            configurable: true,
+            value: { getGamepads: jest.fn(() => twoPads) },
+        })
+
+        const sendGamepadAdded = jest.fn()
+        const sendGamepadRemoved = jest.fn()
+        const mockApp: any = {
+            getChannelProcessor: () => ({
+                _inputFps: { count: jest.fn() },
+                queueGamepadStates: jest.fn(),
+                sendGamepadAdded,
+                sendGamepadRemoved,
+                onMessage: jest.fn(),
+            }),
+        }
+
+        // Default: localCoopEnabled = false
+        const singleDriver = new CompactGamepadDriver()
+        singleDriver.setApplication(mockApp)
+        singleDriver.start()
+        jest.advanceTimersByTime(600)
+        expect(sendGamepadAdded).not.toHaveBeenCalled()
+        expect(singleDriver.requestStates()).toHaveLength(1)
+        singleDriver.stop()
+
+        // Opt-in: localCoopEnabled = true
+        const coopDriver = new CompactGamepadDriver({ localCoopEnabled: true })
+        coopDriver.setApplication(mockApp)
+        coopDriver.start()
+        jest.advanceTimersByTime(600)
+        expect(sendGamepadAdded).toHaveBeenCalledWith(1)
+        expect(coopDriver.requestStates()).toHaveLength(2)
+        coopDriver.stop()
+
+        expect(jest.getTimerCount()).toBe(0)
+        Object.defineProperty(global, 'window', { configurable: true, value: origWindow })
+        Object.defineProperty(global, 'navigator', { configurable: true, value: origNavigator })
+    })
 })

@@ -152,6 +152,13 @@ function SettingsInput() {
         })
     }
 
+    function setLocalCoop(){
+        setSettings({
+            ...settings,
+            input_local_coop: (!settings.input_local_coop),
+        })
+    }
+
     function setKeyConfig(button:string, event) {
         let ckeys = controllerKeys
         if(ckeys === undefined) {
@@ -187,6 +194,7 @@ function SettingsInput() {
             input_touch: defaultSettings.input_touch,
             input_mousekeyboard: defaultSettings.input_mousekeyboard,
             input_newgamepad: defaultSettings.input_newgamepad,
+            input_local_coop: defaultSettings.input_local_coop,
             input_mousekeyboard_config: cfg,
         })
     }
@@ -232,6 +240,14 @@ function SettingsInput() {
 
                     <p>
                         <small>{t('settings.input.legacyWarning')}</small>
+                    </p>
+
+                    <p>
+                        <label>{t('settings.input.enableLocalCoop')}</label>
+                        <span style={{ minWidth: 0 }}>
+                            <input type='checkbox' aria-label={t('settings.input.enableLocalCoop')} onChange={ setLocalCoop } checked={Boolean(settings.input_local_coop)} />
+                        </span><br />
+                        <small>{t('settings.input.enableLocalCoopDescription')}</small>
                     </p>
                 </Card>
 
