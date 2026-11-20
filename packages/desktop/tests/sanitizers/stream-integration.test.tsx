@@ -383,8 +383,25 @@ describe('Stream integration sanitizers', () => {
 
         mockIpcOnAction.mockReturnValue({ action: 'onQueue', index: 0 })
 
+        const fakeTrack = { stop: jest.fn() }
+        const fakeStream = { getTracks: () => [fakeTrack], getAudioTracks: () => [fakeTrack] }
+        const origNavigator = (global as any).navigator
+        Object.defineProperty(global, 'navigator', {
+            configurable: true,
+            value: {
+                mediaDevices: {
+                    enumerateDevices: jest.fn(() => Promise.resolve([])),
+                    getUserMedia: jest.fn(() => Promise.resolve(fakeStream)),
+                    addEventListener: jest.fn(),
+                    removeEventListener: jest.fn(),
+                },
+            },
+        })
+
         const player = new (xCloudPlayer as any)('streamComponent', {})
         player._webrtcClient.getStats = jest.fn(() => Promise.reject(new Error('closed')))
+        player._webrtcClient.addTrack = jest.fn()
+        player.sdpNegotiationChat = jest.fn()
 
         const mounted = harness.mount(StreamComponent, {
             xPlayer: player,
@@ -395,16 +412,37 @@ describe('Stream integration sanitizers', () => {
         jest.advanceTimersByTime(100)
         await flushMicrotasks()
 
-        const buttons = mounted.getOutput().props.children.props.children[2].props.children.props.children[1].props.children
-        const micButton = buttons[2]
-        micButton.props.onClick({ target: { blur: jest.fn() } })
-        expect(player.getChannelProcessor('chat').startMic).toHaveBeenCalledTimes(1)
+        const findButtonByTitle = (node: any, title: string): any => {
+            if (!node || typeof node !== 'object') return undefined
+            if (node.props?.title === title) return node
+            const ch = node.props?.children
+            if (Array.isArray(ch)) {
+                for (const c of ch) {
+                    const m = findButtonByTitle(c, title)
+                    if (m) return m
+                }
+            } else if (ch) {
+                return findButtonByTitle(ch, title)
+            }
+            return undefined
+        }
 
-        micButton.props.onClick({ target: { blur: jest.fn() } })
+        const micButtonOn = findButtonByTitle(mounted.getOutput(), 'streamWindow.enableMic')
+        expect(micButtonOn).toBeDefined()
+        micButtonOn.props.onClick({ target: { blur: jest.fn() } })
+        await flushMicrotasks()
+        expect(player._webrtcClient.addTrack).toHaveBeenCalledTimes(1)
+        expect(player.sdpNegotiationChat).toHaveBeenCalledTimes(1)
+
+        const micButtonOff = findButtonByTitle(mounted.getOutput(), 'streamWindow.disableMic')
+        expect(micButtonOff).toBeDefined()
+        micButtonOff.props.onClick({ target: { blur: jest.fn() } })
         expect(player.getChannelProcessor('chat').stopMic).toHaveBeenCalledTimes(1)
+        expect(fakeTrack.stop).toHaveBeenCalledTimes(1)
 
         mounted.unmount()
         player.close()
+        Object.defineProperty(global, 'navigator', { configurable: true, value: origNavigator })
         expect(jest.getTimerCount()).toBe(0)
         logSpy.mockRestore()
     })

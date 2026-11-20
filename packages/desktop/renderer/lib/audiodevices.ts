@@ -14,6 +14,9 @@ export function useAudioDevices(): AudioDevices {
     const [outputs, setOutputs] = React.useState<MediaDeviceInfo[]>([])
 
     const refresh = React.useCallback(() => {
+        if (typeof navigator === 'undefined' || !navigator.mediaDevices?.enumerateDevices) {
+            return
+        }
         navigator.mediaDevices.enumerateDevices().then((devices) => {
             const realDevices = devices.filter(device => !aliasDeviceIds.includes(device.deviceId))
             setInputs(realDevices.filter(device => device.kind === 'audioinput'))
@@ -24,11 +27,14 @@ export function useAudioDevices(): AudioDevices {
     }, [])
 
     React.useEffect(() => {
+        if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
+            return
+        }
         refresh()
-        navigator.mediaDevices.addEventListener('devicechange', refresh)
+        navigator.mediaDevices.addEventListener?.('devicechange', refresh)
 
         return () => {
-            navigator.mediaDevices.removeEventListener('devicechange', refresh)
+            navigator.mediaDevices.removeEventListener?.('devicechange', refresh)
         }
     }, [refresh])
 

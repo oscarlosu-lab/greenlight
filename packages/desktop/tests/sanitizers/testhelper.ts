@@ -437,6 +437,9 @@ export function createHookHarness() {
         return inst.hookSlots[idx]
     })
 
+    const useCallbackSpy = jest.spyOn(React, 'useCallback').mockImplementation(((fn: any) => fn) as any)
+    const useMemoSpy = jest.spyOn(React, 'useMemo').mockImplementation(((factory: any) => factory()) as any)
+
     const useEffectSpy = jest.spyOn(React, 'useEffect').mockImplementation((create: any, deps?: any[]) => {
         const inst = getCurrent()
         const idx = inst.hookIndex++
@@ -541,6 +544,8 @@ export function createHookHarness() {
             useStateSpy.mockRestore()
             useRefSpy.mockRestore()
             useIdSpy.mockRestore()
+            useCallbackSpy.mockRestore()
+            useMemoSpy.mockRestore()
             useEffectSpy.mockRestore()
         },
     }
