@@ -13,7 +13,7 @@ export default class IpcConsoles extends IpcBase {
         }
         return withTokenRefresh(this._application, () => {
             if(!this._application._webApi){
-                return Promise.reject(new Error('Xbox Web API is not initialized (401)'))
+                return Promise.reject(new Error('Xbox Web API is not initialized (status 401)'))
             }
             return this._application._webApi.providers.smartglass.getConsolesList()
         }).then((consoles) => {
@@ -43,7 +43,7 @@ export default class IpcConsoles extends IpcBase {
     sendPowerCommand(consoleId: string, command: 'powerOn' | 'powerOff'){
         return withTokenRefresh(this._application, () => {
             if(!this._application._webApi){
-                return Promise.reject(new Error('Xbox Web API is not initialized (401)'))
+                return Promise.reject(new Error('Xbox Web API is not initialized (status 401)'))
             }
             return this._application._webApi.providers.smartglass[command](consoleId)
         }).then(() => {

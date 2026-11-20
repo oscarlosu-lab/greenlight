@@ -19,8 +19,10 @@ describe('My Consoles 401 token refresh & expired-session fallback', () => {
         expect(isUnauthorizedError({ statusCode: 401 })).toBe(true)
         expect(isUnauthorizedError({ response: { status: 401 } })).toBe(true)
         expect(isUnauthorizedError(new Error('Request failed with status code 401'))).toBe(true)
+        expect(isUnauthorizedError(new Error('HTTP 401 Unauthorized'))).toBe(true)
         expect(isUnauthorizedError(new Error('token_expired'))).toBe(true)
         expect(isUnauthorizedError(new Error('{"statuscode": 401}'))).toBe(true)
+        expect(isUnauthorizedError(new Error('titleId 401 not found'))).toBe(false)
         expect(isUnauthorizedError(new Error('Network timeout'))).toBe(false)
     })
 

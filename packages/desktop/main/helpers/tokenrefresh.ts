@@ -17,7 +17,7 @@ export function isUnauthorizedError(error:unknown):boolean {
     }
     return typeof message === 'string' && (
         /"statuscode":\s*401\b/i.test(message)
-        || /\b401\b/.test(message)
+        || /\b401\b.{0,20}unauthori[sz]ed|unauthori[sz]ed.{0,20}\b401\b|\b(http|status(?:\s*code)?)\W{0,3}401\b/i.test(message)
         || /token_expired/i.test(message)
     )
 }
