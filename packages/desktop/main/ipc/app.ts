@@ -1,5 +1,5 @@
 import IpcBase from './base'
-import { session } from 'electron'
+import { BrowserWindow, session } from 'electron'
 import electron from 'electron'
 
 interface setForceRegionIpArgs {
@@ -16,6 +16,43 @@ interface setPreferredGameLanguageArgs {
 
 export default class IpcApp extends IpcBase {
     // _streamingSessions:any = {}
+    _diagnosticWindows: Record<string, BrowserWindow | undefined> = {}
+
+    openDiagnosticWindow(url: 'chrome://gpu' | 'chrome://webrtc-internals', title: string){
+        const existing = this._diagnosticWindows[url]
+        if(existing && !existing.isDestroyed()){
+            existing.focus()
+            return true
+        }
+
+        const win = new BrowserWindow({
+            width: 1100,
+            height: 800,
+            title,
+            autoHideMenuBar: true,
+            webPreferences: {
+                nodeIntegration: false,
+                contextIsolation: true,
+                sandbox: true,
+            },
+        })
+        this._diagnosticWindows[url] = win
+        win.on('closed', () => {
+            if(this._diagnosticWindows[url] === win){
+                this._diagnosticWindows[url] = undefined
+            }
+        })
+        win.loadURL(url)
+        return true
+    }
+
+    openGpuInfo(){
+        return Promise.resolve(this.openDiagnosticWindow('chrome://gpu', 'Greenlight - GPU Diagnostics'))
+    }
+
+    openWebrtcInternals(){
+        return Promise.resolve(this.openDiagnosticWindow('chrome://webrtc-internals', 'Greenlight - WebRTC Internals'))
+    }
 
     loadCachedUser(){
         return new Promise((resolve) => {

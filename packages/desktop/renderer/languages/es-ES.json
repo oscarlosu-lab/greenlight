@@ -199,7 +199,11 @@
         "portInvalid": "El puerto debe ser un número entre 1024 y 65535."
       },
       "debug": {
-        "pageTitle": "Configuración: Depuración"
+        "pageTitle": "Configuración: Depuración",
+        "diagnosticsTitle": "Diagnóstico",
+        "diagnosticsDescription": "Inspecciona la aceleración de decodificación de vídeo por hardware y métricas WebRTC en tiempo real.",
+        "openGpuInfo": "Abrir info GPU (chrome://gpu)",
+        "openWebrtcInternals": "Abrir WebRTC Internals"
       }
     },
     "page": {

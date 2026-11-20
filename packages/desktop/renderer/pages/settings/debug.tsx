@@ -2,6 +2,7 @@ import React from 'react'
 import Head from 'next/head'
 import Ipc from '../../lib/ipc'
 import Card from '../../components/ui/card'
+import Button from '../../components/ui/button'
 import SettingsSidebar from '../../components/settings/sidebar'
 import { useTranslation } from 'react-i18next'
 
@@ -25,6 +26,14 @@ function SettingsDebug() {
 
             <SettingsSidebar>
                 <div id="page_settings_debug_application">
+                    <Card>
+                        <h1>{t('settings.debug.diagnosticsTitle')}</h1>
+                        <p>{t('settings.debug.diagnosticsDescription')}</p>
+                        <p>
+                            <Button label={t('settings.debug.openGpuInfo')} className='btn-primary' onClick={() => { Ipc.send('app', 'openGpuInfo') }}></Button> &nbsp;
+                            <Button label={t('settings.debug.openWebrtcInternals')} className='btn' onClick={() => { Ipc.send('app', 'openWebrtcInternals') }}></Button>
+                        </p>
+                    </Card>
                     {
                         appDebug.map((item) => {
                             return (

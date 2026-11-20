@@ -208,7 +208,11 @@
       },
 
       "debug": {
-        "pageTitle": "Settings: Debug"
+        "pageTitle": "Settings: Debug",
+        "diagnosticsTitle": "Diagnostics",
+        "diagnosticsDescription": "Inspect hardware video decoding acceleration and live WebRTC stream metrics.",
+        "openGpuInfo": "Open GPU Info (chrome://gpu)",
+        "openWebrtcInternals": "Open WebRTC Internals"
       }
     },
 
