@@ -433,7 +433,13 @@ function StreamComponent({
                 </div>
 
                 { settings.input_touch ? <TouchOverlay xPlayer={ xPlayer } preset={ settings.touch_layout_preset } /> : null }
-                { fpsOverlayVisible ? <StreamFpsOverlay metrics={sharedStats?.hud} /> : null }
+                { fpsOverlayVisible ? (
+                    <StreamFpsOverlay
+                        metrics={sharedStats?.hud}
+                        position={settings.stream_fps_overlay_pos}
+                        onPositionChange={(pos) => setSettings({ ...settings, stream_fps_overlay_pos: pos })}
+                    />
+                ) : null }
 
                 <div id="component_streamcomponent_loader">
                     <Card className='padbottom'>

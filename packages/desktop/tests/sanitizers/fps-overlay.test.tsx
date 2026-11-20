@@ -1,5 +1,5 @@
 import { defaultSettings } from '../../renderer/context/userContext.defaults'
-import StreamFpsOverlay from '../../renderer/components/ui/stream-fps-overlay'
+import StreamFpsOverlay, { clampOverlayPosition } from '../../renderer/components/ui/stream-fps-overlay'
 import { computeStreamHudMetrics, useSharedStreamStats } from '../../renderer/lib/streamStats'
 import { createHookHarness, flushMicrotasks } from './testhelper'
 
@@ -119,8 +119,9 @@ describe('Real-time FPS & stream metrics overlay', () => {
         harness.dispose()
     })
 
-    test('StreamFpsOverlay renders non-interactive pointer-events: none HUD', () => {
-        const tree: any = StreamFpsOverlay({
+    test('StreamFpsOverlay renders large green draggable FPS-only HUD and clamps bounds', () => {
+        const harness = createHookHarness()
+        const mounted = harness.mount(StreamFpsOverlay, {
             metrics: {
                 fps: 60,
                 width: 2560,
@@ -130,9 +131,23 @@ describe('Real-time FPS & stream metrics overlay', () => {
                 lossPercent: 0,
                 codec: 'H264',
             },
+            position: { x: 100, y: 120 },
         })
+        const tree: any = mounted.getOutput()
         expect(tree.props.id).toBe('component_streamcomponent_fps_overlay')
-        expect(tree.props.style.pointerEvents).toBe('none')
+        expect(tree.props.style.zIndex).toBeGreaterThanOrEqual(100)
+        expect(tree.props.style.fontSize).toBeGreaterThanOrEqual(36)
+        expect(tree.props.style.color).toBe('#4ade80')
+        expect(tree.props.style.left).toBe(100)
+        expect(tree.props.style.top).toBe(120)
+        expect(tree.props.style.cursor).toBe('grab')
+        expect(tree.props.children).toBe('60 FPS')
         expect(tree.props['aria-hidden']).toBe('true')
+
+        expect(clampOverlayPosition({ x: -50, y: -10 }, 1920, 1080, 140, 44)).toEqual({ x: 0, y: 0 })
+        expect(clampOverlayPosition({ x: 5000, y: 5000 }, 1920, 1080, 140, 44)).toEqual({ x: 1780, y: 1036 })
+
+        mounted.unmount()
+        harness.dispose()
     })
 })

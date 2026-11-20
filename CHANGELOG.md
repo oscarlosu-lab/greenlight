@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.5.1 (2026-11-21) — Hotfix
+- **FPS & Metrics HUD visibility**: raised `#component_streamcomponent_fps_overlay` `z-index` to `100` (above `#streamComponent video` at `96`) and positioned at `top: 78px` below the stream toolbar so it is always visible when enabled.
+
 ## v2.5.0 (2026-11-20) — Windows Edition (Ahead of Upstream `v2.4.2`)
 
 First consolidated Windows PC release of `oscarlosu-lab/greenlight`, integrating ~100 improvements on top of `unknownskl/greenlight` `v2.4.2` (`baa4072`) including LAN quality, codec resilience, security hardening, and Windows stability fixes.

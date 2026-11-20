@@ -46,6 +46,7 @@ export const defaultSettings = {
     app_lowresolution: false,
     clarity_boost_strength: 0,
     stream_fps_overlay: false,
+    stream_fps_overlay_pos: { x: 16, y: 78 },
 
     video_enabled: true,
     audio_enabled: true,

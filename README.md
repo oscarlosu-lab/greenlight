@@ -30,7 +30,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the full `v2.5.0` breakdown.
 
 ## Install (Windows)
 
-- **Installer / Portable ZIP**: Download `Greenlight Setup 2.5.0.exe` or `Greenlight-2.5.0-win.zip` from [Releases](https://github.com/oscarlosu-lab/greenlight/releases).
+- **Installer / Portable ZIP**: Download `Greenlight Setup 2.5.1.exe` or `Greenlight-2.5.1-win.zip` from [Releases](https://github.com/oscarlosu-lab/greenlight/releases).
 - **Compile from source**: see [Local Development](#local-development).
 
 ---
