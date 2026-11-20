@@ -317,9 +317,22 @@ function Stream() {
                     connStatus.innerText = t('streamWindow.connectingToConsole')
 
                 } else if(event.state === 'closed') {
-                    // Client has been disconnected. Lets return to home.
+                    // Client has been disconnected. Clean up timers and end the session on the server before returning home.
+                    if(keepaliveInterval !== undefined){
+                        clearInterval(keepaliveInterval)
+                        keepaliveInterval = undefined
+                    }
+                    if(pathLogInterval !== undefined){
+                        clearInterval(pathLogInterval)
+                        pathLogInterval = undefined
+                    }
+                    if(stopFollowingPicture !== undefined){
+                        stopFollowingPicture()
+                        stopFollowingPicture = undefined
+                    }
                     if(!isUnmounting){
                         console.log('Client has been disconnected. Returning to prev page.')
+                        onDisconnect()
                         window.history.back()
                     }
                 }
