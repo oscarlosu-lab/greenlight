@@ -7,6 +7,7 @@ import Card from './card'
 import StreamDebug from './stream-debug'
 import Ipc from '../../lib/ipc'
 import AudioDeviceSelect from './audiodeviceselect'
+import TouchOverlay from './touchoverlay'
 import { useAudioDevices, getMicStream } from '../../lib/audiodevices'
 import { useSettings } from '../../context/userContext'
 import { getEstimatedPointer } from '../../lib/mousesensitivitypatch'
@@ -406,6 +407,8 @@ function StreamComponent({
             <div>
                 <div id="streamComponentHolder">
                 </div>
+
+                { settings.input_touch ? <TouchOverlay xPlayer={ xPlayer } preset={ settings.touch_layout_preset } /> : null }
 
                 <div id="component_streamcomponent_loader">
                     <Card className='padbottom'>

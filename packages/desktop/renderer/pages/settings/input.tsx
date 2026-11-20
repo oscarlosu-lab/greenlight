@@ -123,6 +123,13 @@ function SettingsInput() {
         })
     }
 
+    function setTouchLayoutPreset(preset: string){
+        setSettings({
+            ...settings,
+            touch_layout_preset: preset,
+        })
+    }
+
     // "Keyboard to Gamepad" is the opposite of input_newgamepad. It conflicts with Mouse & Keyboard (every key would act twice),
     // so at most one of the two is on: turning one on turns the other off, turning one off leaves both off.
     const keyboardToGamepad = !settings.input_newgamepad && !settings.input_mousekeyboard
@@ -192,6 +199,7 @@ function SettingsInput() {
             ...settings,
             controller_vibration: defaultSettings.controller_vibration,
             input_touch: defaultSettings.input_touch,
+            touch_layout_preset: defaultSettings.touch_layout_preset,
             input_mousekeyboard: defaultSettings.input_mousekeyboard,
             input_newgamepad: defaultSettings.input_newgamepad,
             input_local_coop: defaultSettings.input_local_coop,
@@ -221,6 +229,15 @@ function SettingsInput() {
                         <span style={{ minWidth: 0 }}>
                             <input type='checkbox' aria-label={t('settings.input.enableTouch')} onChange={ setTouchInput } checked={settings.input_touch} />
                         </span>
+                    </p>
+
+                    <p>
+                        <label>{t('settings.input.touchLayoutPresetLabel')}</label>
+                        <select value={ settings.touch_layout_preset || 'standard' } onChange={ (e) => setTouchLayoutPreset(e.target.value) }>
+                            <option value='standard'>{t('settings.input.touchLayoutPresetValueStandard')}</option>
+                            <option value='racing'>{t('settings.input.touchLayoutPresetValueRacing')}</option>
+                            <option value='minimal'>{t('settings.input.touchLayoutPresetValueMinimal')}</option>
+                        </select>
                     </p>
 
                     <p>

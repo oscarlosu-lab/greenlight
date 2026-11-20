@@ -11,6 +11,7 @@ export const defaultSettings = {
     video_size: 'default',
     force_region_ip: '',
     input_touch: false,
+    touch_layout_preset: 'standard',
     input_mousekeyboard: false,
     input_mouse_sensitivity: 50,
     input_mousekeyboard_config: {
