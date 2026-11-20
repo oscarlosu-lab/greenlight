@@ -9,11 +9,12 @@ export interface StartupFlags {
 
 // Strict allowlists: no path separators, dots, spaces, or shell/URL metacharacters.
 const PROFILE_NAME_PATTERN = /^[a-zA-Z0-9_-]{1,32}$/
+const WINDOWS_RESERVED_DEVICE_PATTERN = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i
 const CONSOLE_ID_PATTERN = /^[a-zA-Z0-9-]{1,64}$/
 
 export function validateProfileName(raw: string): string {
     const trimmed = raw.trim()
-    if (!PROFILE_NAME_PATTERN.test(trimmed)) {
+    if (!PROFILE_NAME_PATTERN.test(trimmed) || WINDOWS_RESERVED_DEVICE_PATTERN.test(trimmed)) {
         return ''
     }
     return trimmed
@@ -44,9 +45,17 @@ export function parseStartupFlags(argv: string[]): StartupFlags {
         } else if (arg.startsWith('--connect=')) {
             flags.autoStream = arg.substring('--connect='.length).trim()
         } else if (arg.startsWith('--profile=')) {
-            flags.profile = validateProfileName(arg.substring('--profile='.length))
+            const raw = arg.substring('--profile='.length)
+            flags.profile = validateProfileName(raw)
+            if (raw.trim() && !flags.profile) {
+                console.warn(`[Greenlight] Ignoring invalid or reserved --profile value "${raw}"; falling back to default profile.`)
+            }
         } else if (arg.startsWith('--instance=')) {
-            flags.profile = validateProfileName(arg.substring('--instance='.length))
+            const raw = arg.substring('--instance='.length)
+            flags.profile = validateProfileName(raw)
+            if (raw.trim() && !flags.profile) {
+                console.warn(`[Greenlight] Ignoring invalid or reserved --instance value "${raw}"; falling back to default profile.`)
+            }
         } else if (arg.startsWith('--console=')) {
             flags.consoleId = validateConsoleId(arg.substring('--console='.length))
         }

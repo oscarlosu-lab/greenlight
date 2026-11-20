@@ -35,6 +35,20 @@ describe('Multi-instance profile isolation and consoleId validation', () => {
         }
     })
 
+    it('rejects Windows reserved device names (CON, PRN, AUX, NUL, COM1-9, LPT1-9) case-insensitively and warns', () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+        for (const reserved of ['CON', 'con', 'Prn', 'AUX', 'nul', 'COM1', 'com9', 'LPT1', 'lpt9']) {
+            expect(validateProfileName(reserved)).toBe('')
+            const flags = parseStartupFlags([`--profile=${reserved}`])
+            expect(flags.profile).toBe('')
+        }
+        expect(warnSpy).toHaveBeenCalled()
+        // Non-reserved similar names remain valid
+        expect(validateProfileName('COM0')).toBe('COM0')
+        expect(validateProfileName('console1')).toBe('console1')
+        warnSpy.mockRestore()
+    })
+
     it('isolates userData under <base>/profiles/<profile> only when a valid profile is given', () => {
         const base = path.join('C:', 'Users', 'Test', 'AppData', 'Roaming', 'greenlight')
         expect(resolveInstanceUserDataPath(base, '')).toBe(base)
