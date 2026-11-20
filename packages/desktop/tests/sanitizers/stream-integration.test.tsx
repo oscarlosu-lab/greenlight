@@ -400,4 +400,52 @@ describe('Stream integration sanitizers', () => {
         expect(jest.getTimerCount()).toBe(0)
         logSpy.mockRestore()
     })
+
+    it('Stream.onDisconnect sends stopStream at most once per session even when closed event fires afterwards', async () => {
+        const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+        env.registerElement('streamComponentHolder')
+        env.registerElement('component_streamcomponent_connectionstatus')
+        env.registerElement('component_streamcomponent_loader')
+
+        mockIpcSend.mockImplementation((_channel: string, action: string) => {
+            if (action === 'startStream') {
+                return Promise.resolve('sess-idem-1')
+            }
+            if (action === 'getPlayerState') {
+                return Promise.resolve({ playerState: 'started', state: 'Provisioned' })
+            }
+            if (action === 'sendSdp') {
+                return Promise.resolve({ sdp: 'v=0\r\n' })
+            }
+            if (action === 'sendIce') {
+                return Promise.resolve([])
+            }
+            return Promise.resolve(true)
+        })
+
+        const mounted = harness.mount(Stream, {})
+        await flushMicrotasks()
+        jest.advanceTimersByTime(1000)
+        await flushMicrotasks()
+
+        const streamEl = findElementByType(mounted.getOutput(), StreamComponent)
+        const player = streamEl.props.xPlayer
+
+        // User clicks Disconnect -> stopStream #1
+        streamEl.props.onDisconnect()
+        await flushMicrotasks()
+
+        // Connection transitions to 'closed' -> handler calls onDisconnect() again -> must NOT send a 2nd stopStream
+        player.getEventBus().emit('connectionstate', { state: 'closed' })
+        await flushMicrotasks()
+
+        const stopCalls = mockIpcSend.mock.calls.filter(
+            ([ch, act]) => ch === 'streaming' && act === 'stopStream'
+        )
+        expect(stopCalls).toHaveLength(1)
+
+        mounted.unmount()
+        expect(jest.getTimerCount()).toBe(0)
+        logSpy.mockRestore()
+    })
 })

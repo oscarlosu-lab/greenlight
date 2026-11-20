@@ -20,6 +20,7 @@ function Stream() {
     const [queueTime, setQueueTime] = React.useState(0)
 
     const startingSessionRef = React.useRef(false)
+    const disconnectRequestedRef = React.useRef(false)
     const streamStateIntervalRef = React.useRef<ReturnType<typeof setInterval> | undefined>(undefined)
 
     React.useEffect(() => {
@@ -52,6 +53,7 @@ function Stream() {
                     return
                 }
                 console.log('StartStream session:', result)
+                disconnectRequestedRef.current = false
                 setSessionId(result)
 
             }).catch((error) => {
@@ -370,7 +372,8 @@ function Stream() {
     }
 
     function onDisconnect(){
-        if(sessionId !== ''){
+        if(sessionId !== '' && !disconnectRequestedRef.current){
+            disconnectRequestedRef.current = true
             Ipc.send('streaming', 'stopStream', {
                 sessionId: sessionId,
             }).then((result) => {
