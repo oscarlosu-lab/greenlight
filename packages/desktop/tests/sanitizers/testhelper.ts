@@ -428,6 +428,15 @@ export function createHookHarness() {
         return inst.hookSlots[idx]
     })
 
+    const useIdSpy = jest.spyOn(React, 'useId').mockImplementation(() => {
+        const inst = getCurrent()
+        const idx = inst.hookIndex++
+        if (!(idx in inst.hookSlots)) {
+            inst.hookSlots[idx] = `:r${idx}:`
+        }
+        return inst.hookSlots[idx]
+    })
+
     const useEffectSpy = jest.spyOn(React, 'useEffect').mockImplementation((create: any, deps?: any[]) => {
         const inst = getCurrent()
         const idx = inst.hookIndex++
@@ -531,6 +540,7 @@ export function createHookHarness() {
             }
             useStateSpy.mockRestore()
             useRefSpy.mockRestore()
+            useIdSpy.mockRestore()
             useEffectSpy.mockRestore()
         },
     }
