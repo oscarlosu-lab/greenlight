@@ -45,6 +45,7 @@ export const defaultSettings = {
     input_gamepad_remap: {},
     app_lowresolution: false,
     clarity_boost_strength: 0,
+    stream_fps_overlay: false,
 
     video_enabled: true,
     audio_enabled: true,

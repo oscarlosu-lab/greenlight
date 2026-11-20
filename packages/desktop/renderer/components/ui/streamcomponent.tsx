@@ -5,10 +5,12 @@ import xPlayer from 'xbox-xcloud-player'
 import Loader from './loader'
 import Card from './card'
 import StreamDebug from './stream-debug'
+import StreamFpsOverlay from './stream-fps-overlay'
 import Ipc from '../../lib/ipc'
 import AudioDeviceSelect from './audiodeviceselect'
 import TouchOverlay from './touchoverlay'
 import { useAudioDevices, getMicStream } from '../../lib/audiodevices'
+import { useSharedStreamStats } from '../../lib/streamStats'
 import { useSettings } from '../../context/userContext'
 import { getEstimatedPointer } from '../../lib/mousesensitivitypatch'
 import { useTranslation } from 'react-i18next'
@@ -38,7 +40,9 @@ function StreamComponent({
     const [micStatus, setMicStatus] = React.useState(false)
     const [waitingSeconds, setWaitingSeconds] = React.useState(0)
     const [debugVisible, setDebugVisible] = React.useState(false)
+    const [fpsOverlayVisible, setFpsOverlayVisible] = React.useState(Boolean(settings.stream_fps_overlay))
     const [videoHidden, setVideoHidden] = React.useState(false)
+    const sharedStats = useSharedStreamStats(xPlayer, fpsOverlayVisible || debugVisible)
     const waitingIntervalRef = React.useRef<ReturnType<typeof setInterval> | undefined>(undefined)
     const isMountedRef = React.useRef(true)
     const micStreamRef = React.useRef<MediaStream>(null)
@@ -135,6 +139,13 @@ function StreamComponent({
         const escapeEvent = (e: KeyboardEvent) => {
             if (mouseKeyboard && e.key === 'Escape') {
                 hintUntil.current = Date.now() + 3000
+            }
+            if (e.key === 'F9') {
+                const target = e.target as HTMLElement | null
+                if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+                    return
+                }
+                setFpsOverlayVisible(visible => !visible)
             }
         }
         window.addEventListener('keydown', escapeEvent)
@@ -422,6 +433,7 @@ function StreamComponent({
                 </div>
 
                 { settings.input_touch ? <TouchOverlay xPlayer={ xPlayer } preset={ settings.touch_layout_preset } /> : null }
+                { fpsOverlayVisible ? <StreamFpsOverlay metrics={sharedStats?.hud} /> : null }
 
                 <div id="component_streamcomponent_loader">
                     <Card className='padbottom'>
@@ -490,6 +502,9 @@ function StreamComponent({
                             <Button label={<i className="fa-solid fa-camera"></i>} title={t("streamWindow.screenshotTitle")} ariaLabel={t("streamWindow.screenshotTitle")} autoBlur={false} onClick={(e) => {
                                 e.target.blur(); takeScreenshot()
                             }}></Button> &nbsp;
+                            <Button label={<i className="fa-solid fa-gauge-high"></i>} title={t("streamWindow.fpsOverlayTitle")} ariaLabel={t("streamWindow.fpsOverlayTitle")} ariaExpanded={fpsOverlayVisible} autoBlur={false} className={fpsOverlayVisible ? 'btn-primary' : 'btn'} onClick={(e) => {
+                                e.target.blur(); setFpsOverlayVisible(visible => !visible)
+                            }}></Button> &nbsp;
                             <Button label={<i className="fa-solid fa-bug"></i>} title={t("streamWindow.debugTitle")} ariaLabel={t("streamWindow.debugTitle")} ariaExpanded={debugVisible} autoBlur={false} onClick={(e) => {
                                 e.target.blur(); toggleDebug()
                             }}></Button>
@@ -508,7 +523,7 @@ function StreamComponent({
                     </div> : null}
                 </div>
 
-                {debugVisible && <StreamDebug player={xPlayer} />}
+                {debugVisible && <StreamDebug player={xPlayer} sharedSnapshot={sharedStats} useSharedStats={true} />}
             </div>
         </React.Fragment>
     )

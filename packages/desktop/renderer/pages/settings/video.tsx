@@ -58,6 +58,13 @@ function SettingsVideo() {
         })
     }
 
+    function setFpsOverlayEnabled(){
+        setSettings({
+            ...settings,
+            stream_fps_overlay: (!settings.stream_fps_overlay),
+        })
+    }
+
     function resetDefaults(){
         if(!confirm(t('settings.common.resetDefaultsConfirm'))) return
 
@@ -67,6 +74,7 @@ function SettingsVideo() {
             audio_enabled: defaultSettings.audio_enabled,
             video_size: defaultSettings.video_size,
             app_lowresolution: defaultSettings.app_lowresolution,
+            stream_fps_overlay: defaultSettings.stream_fps_overlay,
         })
     }
 
@@ -112,6 +120,14 @@ function SettingsVideo() {
                         ({ settings.clarity_boost_strength })
                         <br />
                         <small>{t('settings.videoAudio.clarityBoostDescription')}</small>
+                    </p>
+
+                    <p>
+                        <label>{t('settings.videoAudio.fpsOverlayLabel')}</label>
+                        <span style={{ minWidth: 0 }}>
+                            <input type='checkbox' aria-label={t('settings.videoAudio.fpsOverlayLabel')} onChange={ setFpsOverlayEnabled } checked={Boolean(settings.stream_fps_overlay)} />
+                        </span><br />
+                        <small>{t('settings.videoAudio.fpsOverlayDescription')}</small>
                     </p>
                 </Card>
 
