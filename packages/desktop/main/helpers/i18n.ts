@@ -1,5 +1,6 @@
 import { app } from 'electron'
 import i18n from 'i18next'
+import { resolveAvailableLanguage } from '../../shared/languageMigration'
 
 // Language used when no translation matches or when a translation is missing
 const FALLBACK_LANGUAGE = 'en-US'
@@ -21,18 +22,12 @@ const resources = importAllLanguages()
 
 let isInitialized = false
 
-// Pick the language to use: the saved one when we have a translation for it,
-// otherwise the system language when we have a translation for it, otherwise English.
+// Pick the language to use: the saved one (migrating legacy codes) when we have a
+// translation for it, otherwise the system language when we have a translation for it, otherwise English.
 function resolveLanguage(preferred?: string): string {
     const available = Object.keys(resources)
-    if (preferred && available.includes(preferred)) {
-        return preferred
-    }
-
-    const wanted = (app.getLocale() || '').toLowerCase()
-    return available.find((code) => code.toLowerCase() === wanted)
-        || available.find((code) => code.toLowerCase().split('-')[0] === wanted.split('-')[0])
-        || FALLBACK_LANGUAGE
+    const systemLocale = app.getLocale() || ''
+    return resolveAvailableLanguage(preferred, available, systemLocale ? [systemLocale] : [], FALLBACK_LANGUAGE)
 }
 
 // Set the language used by the main process (dialogs, update notifications, errors).
