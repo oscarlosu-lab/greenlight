@@ -88,13 +88,14 @@ jest.mock('xbox-xcloud-player', () => {
                 chatProcessor.isPaused = true
             }),
         }
-        const inputProcessor = {
+        const inputProcessor: any = {
             pressButton: jest.fn(),
         }
 
         const instance = {
             _elementId: elementId,
             _config: config,
+            _inputDriver: config?.input_driver,
             _eventBus: eventBus,
             _webrtcClient: {
                 getStats: jest.fn(() => Promise.resolve(new Map())),
@@ -126,6 +127,7 @@ jest.mock('xbox-xcloud-player', () => {
                 return undefined
             }),
         }
+        inputProcessor._client = instance
         createdPlayers.push(instance)
         return instance
     })
@@ -276,7 +278,9 @@ describe('Stream integration sanitizers', () => {
         const componentMounted = harness.mount(StreamComponent, streamComponentEl.props)
 
         streamComponentEl.props.onMenu()
-        expect(player.getChannelProcessor('input').pressButton).toHaveBeenCalledWith(0, 'Nexus')
+        expect(player._inputDriver._nexusOverrideN).toBe(true)
+        jest.advanceTimersByTime(150)
+        expect(player._inputDriver._nexusOverrideN).toBe(false)
 
         player.getEventBus().emit('connectionstate', { state: 'connected' })
         jest.advanceTimersByTime(30000)
