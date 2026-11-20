@@ -264,22 +264,15 @@ describe('Main helpers sanitizers', () => {
         logSpy.mockRestore()
     })
 
-    it('IpcxCloud.waitForTitle stops cleanly on destroy without leaving dangling timers', async () => {
+    it('IpcxCloud.getTitle avoids polling timers and rejects cleanly without a token', async () => {
         const mockApp: any = { log: jest.fn() }
         const ipcXcloud = new IpcxCloud(mockApp)
 
         const titlePromise = ipcXcloud.getTitle({ titleId: 'GAME1' })
-        expect(jest.getTimerCount()).toBe(1)
-
-        jest.advanceTimersByTime(200)
-        expect(jest.getTimerCount()).toBe(1)
+        expect(jest.getTimerCount()).toBe(0)
+        await expect(titlePromise).rejects.toThrow('Cannot load xCloud titles without a valid token')
 
         ipcXcloud.destroy()
-        expect(jest.getTimerCount()).toBe(0)
-        await expect(titlePromise).resolves.toBeUndefined()
-
-        const newTitlePromise = ipcXcloud.getTitle({ titleId: 'GAME2' })
-        await expect(newTitlePromise).resolves.toBeUndefined()
         expect(jest.getTimerCount()).toBe(0)
     })
 })
