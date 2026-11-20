@@ -242,6 +242,12 @@ function logPlaybackTiming(stats: RTCStatsReport) {
             typeof report.framesDecoded === 'number' ? `decoded=${report.framesDecoded}` : '',
             typeof report.framesDropped === 'number' ? `dropped=${report.framesDropped}` : '',
             typeof report.freezeCount === 'number' ? `freezes=${report.freezeCount}` : '',
+            report.codecId && stats.get(report.codecId)?.mimeType ? `codec=${stats.get(report.codecId).mimeType}` : '',
+            typeof report.frameWidth === 'number' ? `size=${report.frameWidth}x${report.frameHeight}` : '',
+            typeof report.framesPerSecond === 'number' ? `fps=${report.framesPerSecond}` : '',
+            typeof report.packetsLost === 'number' ? `lost=${report.packetsLost}/${(report.packetsReceived || 0) + report.packetsLost}` : '',
+            typeof report.nackCount === 'number' ? `nack=${report.nackCount}` : '',
+            typeof report.bytesReceived === 'number' ? `bytes=${report.bytesReceived}` : '',
         ].filter(Boolean)
         emit(parts.join(' '))
     })

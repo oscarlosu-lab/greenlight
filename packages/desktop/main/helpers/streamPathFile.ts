@@ -29,10 +29,20 @@ function packagedLogDir(): string {
     }
 }
 
+const MAX_LOG_BYTES = 5 * 1024 * 1024
+
 export function appendStreamPathLog(message: string) {
     try {
         const file = streamPathLogFile()
         fs.mkdirSync(path.dirname(file), { recursive: true })
+        // Keep one previous file and cap the current one, so long sessions cannot fill the disk
+        try {
+            if (fs.statSync(file).size > MAX_LOG_BYTES) {
+                fs.renameSync(file, file + '.1')
+            }
+        } catch {
+            // The file does not exist yet.
+        }
         fs.appendFileSync(file, `${new Date().toISOString()} ${message}\n`)
     } catch {
         // A missing log file must not stop the app from starting.

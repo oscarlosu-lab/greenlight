@@ -1,6 +1,7 @@
 import IpcBase from './base'
 import Application from '../application'
 import StreamManager from '../helpers/streammanager'
+import { appendStreamPathLog } from '../helpers/streamPathFile'
 
 interface startStreamArgs {
     type: string;
@@ -81,8 +82,10 @@ export default class IpcStreaming extends IpcBase {
     }
 
     logPath(args:{ message?: string }){
-        if(args?.message){
+        if(typeof args?.message === 'string' && args.message !== ''){
             this._application.log('stream-path', args.message)
+            // Keep the connection path (candidate pair, codec, LAN verdict) in stream-path.log, capped per line
+            appendStreamPathLog(args.message.replace(/[\r\n]+/g, ' ').slice(0, 2000))
         }
         return Promise.resolve(true)
     }
