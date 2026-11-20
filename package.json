@@ -5,7 +5,7 @@
   "author": "UnknownSKL <info+github@jimkroon.nl>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/unknownskl/greenlight.git"
+    "url": "git+https://github.com/oscarlosu-lab/greenlight.git"
   },
   "scripts": {
     "desktop": "yarn workspace greenlight-desktop",

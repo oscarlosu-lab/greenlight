@@ -1,115 +1,82 @@
-# Greenlight
+# Greenlight — Windows Edition (`oscarlosu-lab/greenlight`)
 
-[![Build/Desktop](https://github.com/unknownskl/greenlight/actions/workflows/build_desktop.yml/badge.svg)](https://github.com/unknownskl/greenlight/actions/workflows/build_desktop.yml)
-[![Build/Docs](https://github.com/unknownskl/greenlight/actions/workflows/build_docs.yml/badge.svg)](https://github.com/unknownskl/greenlight/actions/workflows/build_docs.yml)
-
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=unknownskl_greenlight&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=unknownskl_greenlight)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=unknownskl_greenlight&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=unknownskl_greenlight)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=unknownskl_greenlight&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=unknownskl_greenlight)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=unknownskl_greenlight&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=unknownskl_greenlight)
+> **[Leer en español (README_ES.md)](README_ES.md)**
 
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20Project-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/oscarlosu)
 
-Greenlight is an open-source client for xCloud and Xbox home streaming made in Javascript and Typescript. The client is an application wrapper around [xbox-xcloud-player](https://github.com/unknownskl/xbox-xcloud-player).
-The application runs on Linux, macOS, Windows and Steam Deck.
+**Greenlight** is an open-source client for **Xbox Cloud Gaming (xCloud)** and **Xbox Home Streaming (Remote Play)** built with TypeScript, Electron, and [`xbox-xcloud-player`](https://github.com/unknownskl/xbox-xcloud-player).
 
-_DISCLAIMER: Greenlight is not affiliated with Microsoft, Xbox or Moonlight. All rights and trademarks are property of their respective owners._
+> [!IMPORTANT]
+> **Windows-Only Maintained Fork (Ahead of Upstream `unknownskl/greenlight v2.4.2`)**
+> This fork targets **Windows PC** exclusively and consolidates **~100 improvements** on top of upstream `v2.4.2` — including LAN streaming quality, codec resilience, security hardening, multi-account DPAPI encryption, and modern Electron 45. Releases and the built-in updater point directly to [`oscarlosu-lab/greenlight`](https://github.com/oscarlosu-lab/greenlight/releases).
 
-## Features
+_DISCLAIMER: Greenlight is not affiliated with Microsoft, Xbox, or Moonlight. All rights and trademarks belong to their respective owners._
 
-- Stream video and audio from the Xbox One and Xbox Series
-- Support for gamepad controls
-- Supports rumble on xCloud
-- Keyboard controls
-- Build-in online friends list
+---
 
-<img src="images/main.png" width="400" /> <img src="images/stream.png" width="400" />
+## Ahead of Upstream (`v2.5.0` vs `unknownskl v2.4.2`)
 
-## Install
+| Area | What this fork adds over upstream `v2.4.2` |
+|---|---|
+| **LAN Quality & Codecs** | Private-IPv4 `host`-first UDP ICE sorting + TCP fallback, low-latency WebRTC receivers (`playoutDelayHint=0`, `contentHint='motion'`), **720p / 1080p / 1440p** selector, unlimited bitrate fix (`0` = no SDP cap), **H.264 / HEVC (`H.265`) / AV1** codec selector with H.264 High fallback + `video/rtx`/`red`/`ulpfec` preserved, **Clarity Boost** GPU sharpening, and Windows `ABOVE_NORMAL` stream priority. |
+| **Auth & Security** | **Windows DPAPI (`safeStorage`)** token encryption (`enc:v1:`), automatic **401 token refresh** for streams and *My Consoles*, **Multi-Account** switcher, prefilled `?otc=` browser login, scannable **Microsoft QR login**, isolated **Multi-Instance** profiles (`--profile=<name>`), SonarCloud fixes, SHA-pinned CI workflows, and Express 5 Web UI fix. |
+| **Input & Co-op** | `CompactGamepadDriver` (standard pads prioritized first, hotplug, vibration, clean loop stop), opt-in **Local Co-op** (up to 4 pads), opt-in **Touch Overlay** (*Standard / Racing / Minimal*), **Custom Button Remapping**, M&K mutual exclusivity + sensitivity slider + `Esc` = Xbox Home / `Shift+Esc` = `Esc`, gamepad UI navigation, and toolbar ARIA/keyboard focus. |
+| **Streaming UX & Diagnostics** | Instant **PNG Screenshots** (`p` / camera button), **In-Game Text Entry & Dialogs** (`ShowVirtualKeyboard` / `ShowMessageDialog`), hide/show video toggle, on-demand `StreamDebug`, `stream-path.log` with 5 MB rotation, and **`chrome://gpu`** + **`chrome://webrtc-internals`** diagnostic windows. |
+| **Audio, Library & i18n** | Live **Audio Output (`setSinkId`) & Microphone** selector, Console **Power On/Off/Refresh** buttons, resilient xCloud library with **Game Pass** filter + 250 ms debounce, opt-in **Discord Rich Presence**, **13 languages** (7 new locales + auto system language + translated native dialogs), and **Electron `45.3.4`**. |
 
-### Install from Flathub:
-[Install on Flathub](https://flathub.org/apps/details/io.github.unknownskl.greenlight)
+See [CHANGELOG.md](CHANGELOG.md) for the full `v2.5.0` breakdown.
 
-### Download pre-compiled binaries:
-[Latest releases can be found here](https://github.com/unknownskl/greenlight/releases).
+---
 
-### Compile from source
+## Install (Windows)
 
-See [Local development](?tab=readme-ov-file#local-development).
+- **Installer / Portable ZIP**: Download `Greenlight Setup 2.5.0.exe` or `Greenlight-2.5.0-win.zip` from [Releases](https://github.com/oscarlosu-lab/greenlight/releases).
+- **Compile from source**: see [Local Development](#local-development).
 
-## Keyboard controls
+---
 
-Keys are mapped as following by default:
+## Keyboard & Stream Shortcuts
 
-    Dpad: Keypad direction controls
-    Buttons: A, B, X, Y, Backspace (Mapped as B), Enter (Mapped as A)
-    Nexus (Xbox button): N
-    Left Bumper: [
-    Right Bumper: ]
-    Left Trigger: -
-    Right Trigger: =
-    View: V
-    Menu: M
+| Key / Shortcut | Action |
+|---|---|
+| `~` | Toggle on-demand Debug stats panel |
+| `p` | Capture PNG screenshot to `Pictures\Greenlight` |
+| `Esc` (M&K pointer lock) | Press Xbox Home (Nexus) button |
+| `Shift + Esc` (M&K pointer lock) | Send `Esc` key to the game |
+| `N`, `V`, `M`, `A/B/X/Y`, `[` `]`, `-` `=` | Default Keyboard-to-Gamepad bindings (configurable in *Settings → Input*) |
 
-## Streaming stats
+---
 
-During the stream you can show debug statistics that contain extra data about the buffer queues and other information. To bring this up you can press `~` on your keyboard.
-
-At the bottom-left you can see the status (although not always accurate). At the top-right you can find the FPS of the video and audio decoders including the latency. At the bottom-right you can find debug information about the buffer queues and other information that is useful for debugging perposes.
-
-When possible always provide this information with your issue, if it is related.
-
-## Online friends list
-
-The application also provides a way to see which of your friends are online. This can be useful when you want to quickly check if anyone is online to play with :)
-
-## Steam Deck Setup
-
-This application is reported to be working on the Steam Deck with some small bugs and side-effects. You can map one of the Steam Deck back buttons to the 'N' key to simulate the Xbox button.
-
-## Optional launch arguments
+## Optional Launch Arguments
 
 | Argument | Description |
-|----------|--------------|
-| --fullscreen | Starts the application in fullscreen |
-| --connect=<value> | Will start stream once the user is authenticated. |
+|---|---|
+| `--fullscreen` | Starts Greenlight in fullscreen mode |
+| `--connect=<value>` | Auto-starts stream after auth (`F000000000000000` for console, `xcloud_<title>` for xCloud) |
+| `--profile=<name>` | Launches an isolated concurrent instance (`userData` + encrypted `tokenstore` under `profiles/<name>`) |
+| `--console=<id>` | Sets the target console ID for the instance window title and IPC |
 
-For console use `F000000000000000` format and for xCloud use `xcloud_<title>`.
-
-## To close the application
-
-Click on the Xbox logo at the top-left. It will ask you to confirm to close the window.
+---
 
 ## Local Development
 
 ### Requirements
+- Node.js 24 (`node -v`)
+- Yarn 1.22 (`yarn -v`)
 
-- NodeJS ([https://nodejs.org/](https://nodejs.org/))
-- Yarn ([https://yarnpkg.com/](https://yarnpkg.com/))
+### Steps
+```bash
+git clone https://github.com/oscarlosu-lab/greenlight.git
+cd greenlight
+yarn
+yarn desktop dev
+```
 
-### Steps to get up and running
-
-Clone the repository:
-
-    git clone https://github.com/unknownskl/greenlight.git
-    cd greenlight
-
-Install dependencies:
-
-    yarn
-
-Run development build:
-
-    yarn desktop dev
-
-Create production build:
-
-    yarn desktop build
-
-## Translations
-
-Want to help out with new translations? Help us on [https://poeditor.com/join/project/9SfHRQDbfN](Poeditor.com)
-
-## Changelog
-
-See [changelog](https://unknownskl.github.io/greenlight/docs/desktop/changelog).
+Run checks & production Windows build:
+```bash
+yarn desktop lint
+yarn desktop typecheck
+yarn desktop test:xcloud
+yarn desktop test:sanitizers
+yarn desktop build
+```
