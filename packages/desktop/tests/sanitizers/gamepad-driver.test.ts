@@ -1,4 +1,5 @@
 import CompactGamepadDriver from '../../renderer/lib/gamepaddriver'
+import { applyButtonRemap, sanitizeButtonRemap } from '../../shared/gamepadRemap'
 
 describe('CompactGamepadDriver sanitizers', () => {
     beforeEach(() => {
@@ -120,6 +121,42 @@ describe('CompactGamepadDriver sanitizers', () => {
 
         expect(jest.getTimerCount()).toBe(0)
         Object.defineProperty(global, 'window', { configurable: true, value: origWindow })
+        Object.defineProperty(global, 'navigator', { configurable: true, value: origNavigator })
+    })
+
+    test('buttonRemap swaps buttons without clobbering, merges many-to-one, sanitizes invalid entries, and applies in requestStates()', () => {
+        const origNavigator = (global as any).navigator
+
+        // Sanitizer strips identity mappings and invalid keys/values
+        expect(sanitizeButtonRemap({ A: 'B', B: 'A', X: 'X', Evil: 'A', Y: 'NotAButton' })).toEqual({ A: 'B', B: 'A' })
+
+        // Pure swap A <-> B without clobbering
+        const swapped = applyButtonRemap({ A: 1, B: 0, X: 0, Y: 0 }, { A: 'B', B: 'A' })
+        expect(swapped.A).toBe(0)
+        expect(swapped.B).toBe(1)
+
+        // Many-to-one merge (LeftShoulder -> A while A is unpressed)
+        const merged = applyButtonRemap({ A: 0, LeftShoulder: 1 }, { LeftShoulder: 'A' })
+        expect(merged.A).toBe(1)
+        expect(merged.LeftShoulder).toBe(0)
+
+        // End-to-end inside CompactGamepadDriver.requestStates()
+        const buttons = Array.from({ length: 17 }, (_, i) => ({ pressed: i === 0, value: i === 0 ? 1 : 0 })) // button 0 = A
+        Object.defineProperty(global, 'navigator', {
+            configurable: true,
+            value: {
+                getGamepads: jest.fn(() => [
+                    { id: 'Xbox Controller', connected: true, mapping: 'standard', buttons, axes: [0, 0, 0, 0] },
+                ]),
+            },
+        })
+
+        const driver = new CompactGamepadDriver({ buttonRemap: { A: 'B', B: 'A' } })
+        const states = driver.requestStates()
+        expect(states).toHaveLength(1)
+        expect(states[0].A).toBe(0)
+        expect(states[0].B).toBe(1)
+
         Object.defineProperty(global, 'navigator', { configurable: true, value: origNavigator })
     })
 })

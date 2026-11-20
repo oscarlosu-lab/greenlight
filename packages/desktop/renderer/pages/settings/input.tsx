@@ -9,6 +9,7 @@ import { useSettings } from '../../context/userContext'
 import { STICK_KEYS } from '../../lib/stickkeys'
 import { MOUSE_SENSITIVITY_MAX, MOUSE_SENSITIVITY_MIN, normalizeMouseSensitivity } from '../../lib/mousesensitivity'
 import { defaultSettings } from '../../context/userContext.defaults'
+import { REMAPPABLE_BUTTONS, RemappableButton, sanitizeButtonRemap } from '../../../shared/gamepadRemap'
 
 import { useTranslation } from 'react-i18next'
 
@@ -166,6 +167,27 @@ function SettingsInput() {
         })
     }
 
+    function setGamepadButtonRemap(source: RemappableButton, target: string){
+        const next = sanitizeButtonRemap({
+            ...(settings.input_gamepad_remap || {}),
+            [source]: target,
+        })
+        if (target === source) {
+            delete next[source]
+        }
+        setSettings({
+            ...settings,
+            input_gamepad_remap: next,
+        })
+    }
+
+    function resetGamepadButtonRemap(){
+        setSettings({
+            ...settings,
+            input_gamepad_remap: {},
+        })
+    }
+
     function setKeyConfig(button:string, event) {
         let ckeys = controllerKeys
         if(ckeys === undefined) {
@@ -203,6 +225,7 @@ function SettingsInput() {
             input_mousekeyboard: defaultSettings.input_mousekeyboard,
             input_newgamepad: defaultSettings.input_newgamepad,
             input_local_coop: defaultSettings.input_local_coop,
+            input_gamepad_remap: {},
             input_mousekeyboard_config: cfg,
         })
     }
@@ -306,6 +329,33 @@ function SettingsInput() {
                             })()
                         }
                     </div>
+                </Card>
+
+                <Card>
+                    <h1>{t('settings.input.gamepadRemapTitle')}</h1>
+                    <p><small>{t('settings.input.gamepadRemapDescription')}</small></p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px 16px' }}>
+                        {REMAPPABLE_BUTTONS.map((source) => {
+                            const currentTarget = (settings.input_gamepad_remap && settings.input_gamepad_remap[source]) || source
+                            return (
+                                <p key={source} style={{ margin: '4px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                                    <label style={{ minWidth: 0 }}>{source}</label>
+                                    <select
+                                        aria-label={`${source} remap`}
+                                        value={currentTarget}
+                                        onChange={(e) => setGamepadButtonRemap(source, e.target.value)}
+                                    >
+                                        {REMAPPABLE_BUTTONS.map((target) => (
+                                            <option key={target} value={target}>{target}</option>
+                                        ))}
+                                    </select>
+                                </p>
+                            )
+                        })}
+                    </div>
+                    <p style={{ marginTop: '12px' }}>
+                        <Button label={t('settings.input.gamepadRemapReset')} className='btn-small' onClick={resetGamepadButtonRemap}></Button>
+                    </p>
                 </Card>
 
                 <Card hidden={ !keyboardToGamepad }>

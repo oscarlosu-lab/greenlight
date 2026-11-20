@@ -1,4 +1,5 @@
 import GamepadDriver from 'xbox-xcloud-player/dist/Driver/Gamepad'
+import { applyButtonRemap, GamepadButtonMap, sanitizeButtonRemap } from '../../shared/gamepadRemap'
 
 // Report type of vibration messages on the input channel (see Channel/Input in the library)
 const VIBRATION_REPORT = 128
@@ -11,10 +12,17 @@ export default class CompactGamepadDriver extends GamepadDriver {
     _vibrationIntervals = {}
     _runTimeout: ReturnType<typeof setTimeout>
     localCoopEnabled = false
+    _buttonRemap: GamepadButtonMap = {}
 
-    constructor(options?: { localCoopEnabled?: boolean }){
+    constructor(options?: { localCoopEnabled?: boolean, buttonRemap?: GamepadButtonMap }){
         super()
         this.localCoopEnabled = Boolean(options?.localCoopEnabled)
+        this._buttonRemap = sanitizeButtonRemap(options?.buttonRemap)
+    }
+
+    mapStateLabels(buttons, axes){
+        const state = super.mapStateLabels(buttons, axes)
+        return applyButtonRemap(state, this._buttonRemap)
     }
 
     start(){

@@ -41,6 +41,7 @@ export const defaultSettings = {
     },
     input_newgamepad: false,
     input_local_coop: false,
+    input_gamepad_remap: {} as Record<string, string>,
     app_lowresolution: false,
     clarity_boost_strength: 0,
 

@@ -110,6 +110,7 @@ function Stream() {
                             input_legacykeyboard: !(settings.input_newgamepad || settings.input_mousekeyboard),
                             input_driver: new CompactGamepadDriver({
                                 localCoopEnabled: Boolean(settings.input_local_coop),
+                                buttonRemap: settings.input_gamepad_remap,
                             }),
                             input_mousekeyboard_config: settings.input_mousekeyboard_config !== undefined ? {
                                 _keymapping: settings.input_mousekeyboard_config,
