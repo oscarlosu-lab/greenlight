@@ -5,6 +5,7 @@ import { appendStreamPathLog } from './streamPathFile'
 let holders = 0
 let suspensionBlocker = -1
 let displayBlocker = -1
+const elevatedPids = new Set<number>()
 
 export function acquireStreamPerformance() {
     holders++
@@ -41,20 +42,31 @@ export function releaseStreamPerformance() {
     }
     suspensionBlocker = -1
     displayBlocker = -1
+
+    restoreProcessPriorities()
     appendStreamPathLog('stream performance mode off')
 }
 
 function raiseProcessPriority(pid: number, label: string) {
-    const levels = [os.constants.priority.PRIORITY_HIGH, os.constants.priority.PRIORITY_ABOVE_NORMAL]
-    for (const level of levels) {
+    try {
+        os.setPriority(pid, os.constants.priority.PRIORITY_ABOVE_NORMAL)
+        elevatedPids.add(pid)
+        appendStreamPathLog(`${label} (pid ${pid}) priority raised to ABOVE_NORMAL`)
+    } catch {
+        // Ignore if OS denies priority change.
+    }
+}
+
+function restoreProcessPriorities() {
+    for (const pid of elevatedPids) {
         try {
-            os.setPriority(pid, level)
-            appendStreamPathLog(`${label} (pid ${pid}) priority raised`)
-            return
+            os.setPriority(pid, os.constants.priority.PRIORITY_NORMAL)
+            appendStreamPathLog(`pid ${pid} priority restored to NORMAL`)
         } catch {
-            // Try the next less aggressive priority level.
+            // Process may have exited already.
         }
     }
+    elevatedPids.clear()
 }
 
 function raiseHelperPriorities() {

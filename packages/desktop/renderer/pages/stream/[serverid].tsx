@@ -7,7 +7,7 @@ import { useSettings } from '../../context/userContext'
 import StreamComponent from '../../components/ui/streamcomponent'
 import StreamPreload from '../../components/ui/streampreload'
 import Ipc from '../../lib/ipc'
-import { applyLowLatencyReceivers, followConsolePicture, logIceList, logSelectedIcePath, logStreamPath, waitForLocalIce } from '../../lib/streamPath'
+import { applyLowLatencyReceivers, filterIceCandidates, followConsolePicture, logIceList, logSelectedIcePath, logStreamPath, waitForLocalIce } from '../../lib/streamPath'
 import { useTranslation } from 'react-i18next'
 
 function Stream() {
@@ -209,27 +209,16 @@ function Stream() {
                 }
                 xPlayer.setRemoteOffer(sdpResult.sdp)
 
-                // Gather candidates (wait for full ICE gathering and keep UDP on LAN)
+                // Gather candidates (wait for full ICE gathering and prefer UDP on LAN with TCP fallback)
                 waitForLocalIce(xPlayer._webrtcClient, () => xPlayer.getIceCandidates(), 4000, iceSignal).then((iceCandidates) => {
                     if(isUnmounting){
                         return
                     }
-                    const candidates = []
-                    let skippedTcp = 0
-                    for(const candidate in iceCandidates){
-                        const line = iceCandidates[candidate].candidate || ''
-                        if(/\stcp\s/i.test(line)){
-                            skippedTcp++
-                            continue
-                        }
-                        candidates.push({
-                            candidate: line,
-                            sdpMLineIndex: iceCandidates[candidate].sdpMLineIndex,
-                            sdpMid: iceCandidates[candidate].sdpMid,
-                        })
-                    }
+                    const { candidates, skippedTcp, usedTcpFallback } = filterIceCandidates(iceCandidates)
                     if(skippedTcp > 0){
                         logStreamPath(`skipped ${skippedTcp} tcp candidates so the stream stays on udp`)
+                    } else if(usedTcpFallback){
+                        logStreamPath(`no udp candidates available; falling back to ${candidates.length} tcp candidates`)
                     }
 
                     Ipc.send('streaming', 'sendIce', {

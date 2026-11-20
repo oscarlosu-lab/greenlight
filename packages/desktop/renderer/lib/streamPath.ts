@@ -17,6 +17,52 @@ export function logStreamPath(line: string) {
     emit(line.startsWith('[stream-path]') ? line : `[stream-path] ${line}`)
 }
 
+export interface FilteredIceCandidatesResult {
+    candidates: Array<{ candidate: string; sdpMLineIndex: number | null; sdpMid: string | null }>
+    skippedTcp: number
+    usedTcpFallback: boolean
+}
+
+export function filterIceCandidates(iceCandidates: ArrayLike<RTCIceCandidate>): FilteredIceCandidatesResult {
+    const udpCandidates: Array<{ candidate: string; sdpMLineIndex: number | null; sdpMid: string | null }> = []
+    const tcpCandidates: Array<{ candidate: string; sdpMLineIndex: number | null; sdpMid: string | null }> = []
+
+    for (const key in iceCandidates) {
+        if (!Object.prototype.hasOwnProperty.call(iceCandidates, key)) {
+            continue
+        }
+        const item = iceCandidates[key]
+        if (!item) {
+            continue
+        }
+        const line = item.candidate || ''
+        const entry = {
+            candidate: line,
+            sdpMLineIndex: item.sdpMLineIndex,
+            sdpMid: item.sdpMid,
+        }
+        if (/\stcp\s/i.test(line)) {
+            tcpCandidates.push(entry)
+        } else {
+            udpCandidates.push(entry)
+        }
+    }
+
+    if (udpCandidates.length > 0) {
+        return {
+            candidates: udpCandidates,
+            skippedTcp: tcpCandidates.length,
+            usedTcpFallback: false,
+        }
+    }
+
+    return {
+        candidates: tcpCandidates,
+        skippedTcp: 0,
+        usedTcpFallback: tcpCandidates.length > 0,
+    }
+}
+
 export function applyLowLatencyReceivers(peer: RTCPeerConnection | undefined, quiet = false) {
     if(!peer || typeof peer.getReceivers !== 'function'){
         return
