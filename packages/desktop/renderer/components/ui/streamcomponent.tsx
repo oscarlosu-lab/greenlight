@@ -440,15 +440,15 @@ function StreamComponent({
                     <span>{ (typeof navigator !== 'undefined' && navigator.userAgent?.includes('Mac')) ? t('streamWindow.mouseHint') : t('streamWindow.mouseHintHoldEsc') }</span>
                 </div>
 
-                <div id="component_streamcomponent_gamebar">
+                <div id="component_streamcomponent_gamebar" role="toolbar" aria-label="Stream controls">
                     <div id="component_streamcomponent_gamebar_menu">
                         <div style={{
                             width: '25%',
                         }}>
-                            <Button label={<span><i className="fa-solid fa-xmark"></i> {t("streamWindow.endStreamBtn")}</span>} title={t("streamWindow.endStreamBtn")} className='btn-cancel' onClick={() => {
+                            <Button label={<span><i className="fa-solid fa-xmark"></i> {t("streamWindow.endStreamBtn")}</span>} title={t("streamWindow.endStreamBtn")} ariaLabel={t("streamWindow.endStreamBtn")} autoBlur={false} className='btn-cancel' onClick={() => {
                                 endStream()
                             }}></Button> &nbsp;
-                            <Button label={<span><i className="fa-solid fa-xmark"></i></span>} title={t("streamWindow.disconnectBtn")} className='btn' onClick={() => {
+                            <Button label={<span><i className="fa-solid fa-xmark"></i></span>} title={t("streamWindow.disconnectBtn")} ariaLabel={t("streamWindow.disconnectBtn")} autoBlur={false} className='btn' onClick={() => {
                                 streamDisconnect()
                             }}></Button>
                         </div>
@@ -457,13 +457,13 @@ function StreamComponent({
                             marginLeft: 'auto',
                             marginRight: 'auto',
                         }}>
-                            <Button label={<span><i className="fa-brands fa-xbox"></i> {t("streamWindow.menuBtn")}</span>} title={t("streamWindow.menuTitle")} onClick={(e) => {
+                            <Button label={<span><i className="fa-brands fa-xbox"></i> {t("streamWindow.menuBtn")}</span>} title={t("streamWindow.menuTitle")} ariaLabel={t("streamWindow.menuTitle")} autoBlur={false} onClick={(e) => {
                                 e.target.blur(); onMenu?.()
                             }}></Button> &nbsp;
-                            <Button label={(micStatus === false) ? <span><i className="fa-solid fa-microphone-slash"></i> {t("streamWindow.micMuted")}</span> : <span><i className="fa-solid fa-microphone"></i> {t("streamWindow.micActive")}</span>} title={(micStatus === false) ? t("streamWindow.enableMic") : t("streamWindow.disableMic")} className={(micStatus === false) ? 'btn-cancel' : 'btn-primary'} onClick={(e) => {
+                            <Button label={(micStatus === false) ? <span><i className="fa-solid fa-microphone-slash"></i> {t("streamWindow.micMuted")}</span> : <span><i className="fa-solid fa-microphone"></i> {t("streamWindow.micActive")}</span>} title={(micStatus === false) ? t("streamWindow.enableMic") : t("streamWindow.disableMic")} ariaLabel={(micStatus === false) ? t("streamWindow.enableMic") : t("streamWindow.disableMic")} ariaExpanded={micStatus} autoBlur={false} className={(micStatus === false) ? 'btn-cancel' : 'btn-primary'} onClick={(e) => {
                                 e.target.blur(); toggleMic()
                             }}></Button> &nbsp;
-                            <Button label={<i className="fa-solid fa-headphones"></i>} title={t("streamWindow.audioDevicesTitle")} className={audioMenuOpen ? 'btn-primary' : 'btn'} onClick={(e) => {
+                            <Button label={<i className="fa-solid fa-headphones"></i>} title={t("streamWindow.audioDevicesTitle")} ariaLabel={t("streamWindow.audioDevicesTitle")} ariaExpanded={audioMenuOpen} ariaControls="component_streamcomponent_audiodevices" autoBlur={false} className={audioMenuOpen ? 'btn-primary' : 'btn'} onClick={(e) => {
                                 e.target.blur(); setAudioMenuOpen(!audioMenuOpen)
                             }}></Button>
                         </div>
@@ -484,13 +484,13 @@ function StreamComponent({
                             width: '25%',
                             textAlign: 'right',
                         }}>
-                            <Button label={<i className={videoHidden ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'}></i>} title={t("streamWindow.toggleVideoTitle")} className={videoHidden ? 'btn-primary' : 'btn'} onClick={(e) => {
+                            <Button label={<i className={videoHidden ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'}></i>} title={t("streamWindow.toggleVideoTitle")} ariaLabel={t("streamWindow.toggleVideoTitle")} ariaExpanded={!videoHidden} autoBlur={false} className={videoHidden ? 'btn-primary' : 'btn'} onClick={(e) => {
                                 e.target.blur(); toggleHideScreen()
                             }}></Button> &nbsp;
-                            <Button label={<i className="fa-solid fa-camera"></i>} title={t("streamWindow.screenshotTitle")} onClick={(e) => {
+                            <Button label={<i className="fa-solid fa-camera"></i>} title={t("streamWindow.screenshotTitle")} ariaLabel={t("streamWindow.screenshotTitle")} autoBlur={false} onClick={(e) => {
                                 e.target.blur(); takeScreenshot()
                             }}></Button> &nbsp;
-                            <Button label={<i className="fa-solid fa-bug"></i>} title={t("streamWindow.debugTitle")} onClick={(e) => {
+                            <Button label={<i className="fa-solid fa-bug"></i>} title={t("streamWindow.debugTitle")} ariaLabel={t("streamWindow.debugTitle")} ariaExpanded={debugVisible} autoBlur={false} onClick={(e) => {
                                 e.target.blur(); toggleDebug()
                             }}></Button>
                         </div>
