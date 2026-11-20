@@ -37,6 +37,7 @@ function StreamComponent({
     const [micStatus, setMicStatus] = React.useState(false)
     const [waitingSeconds, setWaitingSeconds] = React.useState(0)
     const [debugVisible, setDebugVisible] = React.useState(false)
+    const [videoHidden, setVideoHidden] = React.useState(false)
     const waitingIntervalRef = React.useRef<ReturnType<typeof setInterval> | undefined>(undefined)
     const isMountedRef = React.useRef(true)
     const micStreamRef = React.useRef<MediaStream>(null)
@@ -283,6 +284,18 @@ function StreamComponent({
         setDebugVisible(visible => !visible)
     }
 
+    function toggleHideScreen() {
+        const stream = document.getElementById('streamComponent')
+        if (!stream) {
+            return
+        }
+        const nextHidden = !videoHidden
+        for (const element of Array.from(stream.children)) {
+            (element as HTMLElement).hidden = nextHidden
+        }
+        setVideoHidden(nextHidden)
+    }
+
     function takeScreenshot() {
         const videoElement = document.querySelector('#streamComponent video') as HTMLVideoElement
         if (videoElement === null) {
@@ -455,6 +468,9 @@ function StreamComponent({
                             width: '25%',
                             textAlign: 'right',
                         }}>
+                            <Button label={<i className={videoHidden ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'}></i>} title={t("streamWindow.toggleVideoTitle")} className={videoHidden ? 'btn-primary' : 'btn'} onClick={(e) => {
+                                e.target.blur(); toggleHideScreen()
+                            }}></Button> &nbsp;
                             <Button label={<i className="fa-solid fa-camera"></i>} title={t("streamWindow.screenshotTitle")} onClick={(e) => {
                                 e.target.blur(); takeScreenshot()
                             }}></Button> &nbsp;
