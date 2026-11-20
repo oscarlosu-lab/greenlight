@@ -45,7 +45,7 @@ export default class TitleManager {
     constructor(application){
         this._application = application
         // Share the application store: separate instances cache the file and overwrite each other's writes
-        this._store = application._store
+        this._store = application?._store ?? new Store()
         this._http = new HTTP(this._application)
     }
 

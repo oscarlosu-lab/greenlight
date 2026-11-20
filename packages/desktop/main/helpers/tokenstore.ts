@@ -1,5 +1,30 @@
+import { safeStorage } from 'electron'
 import { TokenStore } from 'xal-node'
 import Store from 'electron-store'
+
+const ENCRYPTED_PREFIX = 'enc:v1:'
+
+export function encryptTokenPayload(plaintextJson: string): string {
+    if (safeStorage && typeof safeStorage.isEncryptionAvailable === 'function' && safeStorage.isEncryptionAvailable()) {
+        const encrypted = safeStorage.encryptString(plaintextJson)
+        return ENCRYPTED_PREFIX + encrypted.toString('base64')
+    }
+    return plaintextJson
+}
+
+export function decryptTokenPayload(stored: string): string {
+    if (!stored || typeof stored !== 'string') {
+        return '{}'
+    }
+    if (stored.startsWith(ENCRYPTED_PREFIX)) {
+        if (!safeStorage || typeof safeStorage.isEncryptionAvailable !== 'function' || !safeStorage.isEncryptionAvailable()) {
+            throw new Error('Encrypted token payload cannot be decrypted because OS safeStorage is unavailable')
+        }
+        const buf = Buffer.from(stored.slice(ENCRYPTED_PREFIX.length), 'base64')
+        return safeStorage.decryptString(buf)
+    }
+    return stored
+}
 
 export default class AuthTokenStore extends TokenStore {
 
@@ -12,8 +37,14 @@ export default class AuthTokenStore extends TokenStore {
     }
 
     load() {
-        const tokens = this._store.get('user.tokenstore', '{}') as string
-        this.loadJson(tokens)
+        const raw = this._store.get('user.tokenstore', '{}') as string
+        const decrypted = decryptTokenPayload(raw)
+        this.loadJson(decrypted)
+
+        // Transparently migrate legacy plaintext tokens to OS-encrypted storage (Windows DPAPI)
+        if (raw !== '{}' && !raw.startsWith(ENCRYPTED_PREFIX) && safeStorage?.isEncryptionAvailable?.()) {
+            this._store.set('user.tokenstore', encryptTokenPayload(decrypted))
+        }
 
         return true
     }
@@ -25,7 +56,7 @@ export default class AuthTokenStore extends TokenStore {
             jwtKeys: this._jwtKeys,
         })
 
-        this._store.set('user.tokenstore', data)
+        this._store.set('user.tokenstore', encryptTokenPayload(data))
     }
 
     clear() {

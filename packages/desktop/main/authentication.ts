@@ -265,8 +265,8 @@ export default class Authentication {
         store.set('user.gamerscore', account.gamerscore)
         store.set('accounts.active', xuid)
 
-        // Keep the in-memory tokens in sync so a pending save cannot restore the previous account
-        this._tokenStore.loadJson(account.tokenstore)
+        // Keep the in-memory tokens in sync (decrypting via safeStorage) so a pending save cannot restore the previous account
+        this._tokenStore.load()
         this._application.restart()
     }
 
