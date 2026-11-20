@@ -198,7 +198,9 @@ function Stream() {
             : DEFAULT_H264_PROFILES // Prefer H.264 High (4d), fallback Main (42e) / Baseline (420)
         // Apply ordered codec preferences directly on the video transceiver so H.264 fallback
         // and RTX/RED/ULPFEC packet-loss resilience codecs are always preserved.
-        applyVideoCodecPreferences(xPlayer, settings.video_codec, effectiveVideoProfiles)
+        const offeredCodecs = applyVideoCodecPreferences(xPlayer, settings.video_codec, effectiveVideoProfiles)
+        const offeredMimeTypes = offeredCodecs.map((codec) => codec.mimeType).filter((mime, index, all) => all.indexOf(mime) === index)
+        logStreamPath(`video codec setting=${settings.video_codec || 'h264'} offered=${offeredMimeTypes.join(',') || '(library default)'}`)
 
         // Stream is ready so we start the player
         xPlayer.setControllerRumble(settings.controller_vibration)

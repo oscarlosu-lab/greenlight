@@ -136,7 +136,7 @@
         "preferredCodecValueH264": "H.264 (Default)",
         "preferredCodecValueHEVC": "HEVC / H.265 (with H.264 fallback)",
         "preferredCodecValueAV1": "AV1 (with H.264 fallback)",
-        "preferredCodecDescription": "Preferred video codec for WebRTC negotiation. Keeps H.264 fallback and RTX/RED/ULPFEC resilience active.",
+        "preferredCodecDescription": "Preferred video codec for WebRTC negotiation. Keeps H.264 fallback and RTX/RED/ULPFEC resilience active. In Remote Play the Xbox console may only send H.264: check codecId in the debug panel.",
         "setH264ProfileValueAuto": "Auto-Negotiate",
         "setH264ProfileValueHigh": "High",
         "setH264ProfileValueMedium": "Medium",

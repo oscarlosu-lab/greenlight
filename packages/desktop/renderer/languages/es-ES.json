@@ -130,7 +130,7 @@
         "preferredCodecValueH264": "H.264 (Predeterminado)",
         "preferredCodecValueHEVC": "HEVC / H.265 (con respaldo H.264)",
         "preferredCodecValueAV1": "AV1 (con respaldo H.264)",
-        "preferredCodecDescription": "Códec de vídeo preferido para WebRTC. Mantiene respaldo H.264 y retransmisión/FEC (RTX/RED/ULPFEC).",
+        "preferredCodecDescription": "Códec de vídeo preferido para WebRTC. Mantiene respaldo H.264 y retransmisión/FEC (RTX/RED/ULPFEC). En Remote Play la consola Xbox puede enviar solo H.264: compruébalo en el panel de depuración (codecId).",
         "setH264ProfileValueAuto": "Auto-negociación",
         "setH264ProfileValueHigh": "Alto",
         "setH264ProfileValueMedium": "Medio",

@@ -220,6 +220,8 @@ export async function logSelectedIcePath(peer: RTCPeerConnection | undefined) {
     emit(`[stream-path] VERDICT: ${verdict}`)
 }
 
+const lastTimingSample = new Map<string, { delay: number, emitted: number }>()
+
 function logPlaybackTiming(stats: RTCStatsReport) {
     stats.forEach((report) => {
         if(report.type !== 'inbound-rtp'){
@@ -230,12 +232,19 @@ function logPlaybackTiming(stats: RTCStatsReport) {
             return
         }
         const bufferMs = averageMs(report.jitterBufferDelay, report.jitterBufferEmittedCount)
+        // The counters are cumulative since the start: the difference with the previous sample gives the current value
+        const previous = lastTimingSample.get(report.id)
+        const bufferNowMs = previous
+            ? averageMs((report.jitterBufferDelay ?? 0) - previous.delay, (report.jitterBufferEmittedCount ?? 0) - previous.emitted)
+            : null
+        lastTimingSample.set(report.id, { delay: report.jitterBufferDelay ?? 0, emitted: report.jitterBufferEmittedCount ?? 0 })
         const decodeMs = kind === 'video' ? averageMs(report.totalDecodeTime, report.framesDecoded) : null
         const processingMs = kind === 'video' ? averageMs(report.totalProcessingDelay, report.framesDecoded) : null
         const jitterMs = typeof report.jitter === 'number' ? Math.round(report.jitter * 1000) : null
         const parts = [
             `[stream-path] ${kind} timing`,
-            bufferMs !== null ? `jitterBuffer=${bufferMs}ms` : '',
+            bufferNowMs !== null ? `jitterBufferNow=${bufferNowMs}ms` : '',
+            bufferMs !== null ? `jitterBufferAvg=${bufferMs}ms` : '',
             jitterMs !== null ? `jitter=${jitterMs}ms` : '',
             decodeMs !== null ? `decode=${decodeMs}ms` : '',
             processingMs !== null ? `processing=${processingMs}ms` : '',
