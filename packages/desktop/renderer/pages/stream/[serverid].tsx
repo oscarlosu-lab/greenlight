@@ -7,6 +7,7 @@ import { useSettings } from '../../context/userContext'
 import StreamComponent from '../../components/ui/streamcomponent'
 import StreamPreload from '../../components/ui/streampreload'
 import Ipc from '../../lib/ipc'
+import { applyLowLatencyReceivers, followConsolePicture, logIceList, logSelectedIcePath, logStreamPath, waitForLocalIce } from '../../lib/streamPath'
 import { useTranslation } from 'react-i18next'
 
 function Stream() {
@@ -150,7 +151,10 @@ function Stream() {
         }
 
         let isUnmounting = false
+        const iceSignal = { cancelled: false }
         let keepaliveInterval: ReturnType<typeof setInterval> | undefined
+        let pathLogInterval: ReturnType<typeof setInterval> | undefined
+        let stopFollowingPicture: (() => void) | undefined
 
         const streamType = (typeof router.query.serverid === 'string' && router.query.serverid.substr(0, 6) === 'xcloud') ? 'cloud' : 'home'
         const holder = document.getElementById('streamComponentHolder')
@@ -205,35 +209,48 @@ function Stream() {
                 }
                 xPlayer.setRemoteOffer(sdpResult.sdp)
 
-                // Gather candidates
-                const iceCandidates = xPlayer.getIceCandidates()
-                const candidates = []
-                for(const candidate in iceCandidates){
-                    candidates.push({
-                        candidate: iceCandidates[candidate].candidate,
-                        sdpMLineIndex: iceCandidates[candidate].sdpMLineIndex,
-                        sdpMid: iceCandidates[candidate].sdpMid,
+                // Gather candidates (wait for full ICE gathering and keep UDP on LAN)
+                waitForLocalIce(xPlayer._webrtcClient, () => xPlayer.getIceCandidates(), 4000, iceSignal).then((iceCandidates) => {
+                    if(isUnmounting){
+                        return
+                    }
+                    const candidates = []
+                    let skippedTcp = 0
+                    for(const candidate in iceCandidates){
+                        const line = iceCandidates[candidate].candidate || ''
+                        if(/\stcp\s/i.test(line)){
+                            skippedTcp++
+                            continue
+                        }
+                        candidates.push({
+                            candidate: line,
+                            sdpMLineIndex: iceCandidates[candidate].sdpMLineIndex,
+                            sdpMid: iceCandidates[candidate].sdpMid,
+                        })
+                    }
+                    if(skippedTcp > 0){
+                        logStreamPath(`skipped ${skippedTcp} tcp candidates so the stream stays on udp`)
+                    }
+
+                    Ipc.send('streaming', 'sendIce', {
+                        sessionId: sessionId,
+                        ice: candidates,
+                    }).then((iceResult:any) => {
+                        if(isUnmounting){
+                            return
+                        }
+                        logIceList('remote', iceResult || [])
+                        xPlayer.setIceCandidates(iceResult)
+
+                        // All done. Waiting for the event 'connectionstate' to be triggered
+
+                    }).catch((error) => {
+                        if(isUnmounting){
+                            return
+                        }
+                        console.log('ICE Exchange error:', error)
+                        alert(t('errors.ICEExchangeError') + ' ' + JSON.stringify(error))
                     })
-                }
-
-                Ipc.send('streaming', 'sendIce', {
-                    sessionId: sessionId,
-                    ice: candidates,
-                }).then((iceResult:any) => {
-                    if(isUnmounting){
-                        return
-                    }
-                    console.log(iceResult)
-                    xPlayer.setIceCandidates(iceResult)
-
-                    // All done. Waiting for the event 'connectionstate' to be triggered
-
-                }).catch((error) => {
-                    if(isUnmounting){
-                        return
-                    }
-                    console.log('ICE Exchange error:', error)
-                    alert(t('errors.ICEExchangeError') + ' ' + JSON.stringify(error))
                 })
 
             }).catch((error) => {
@@ -275,6 +292,21 @@ function Stream() {
                         xPlayer._videoComponent._videoRender.style.opacity = 0
                     }
 
+                    // Apply low-latency WebRTC receiver hints (jitterBufferTarget=0 / playoutDelayHint=0) and log ICE path
+                    applyLowLatencyReceivers(xPlayer._webrtcClient)
+                    logSelectedIcePath(xPlayer._webrtcClient).catch(() => {})
+                    if(pathLogInterval !== undefined){
+                        clearInterval(pathLogInterval)
+                    }
+                    pathLogInterval = setInterval(() => {
+                        applyLowLatencyReceivers(xPlayer._webrtcClient, true)
+                        logSelectedIcePath(xPlayer._webrtcClient).catch(() => {})
+                    }, 15000)
+
+                    if(streamType === 'home' && stopFollowingPicture === undefined){
+                        stopFollowingPicture = followConsolePicture(xPlayer)
+                    }
+
                     // Start keepalive loop
                     if(keepaliveInterval !== undefined){
                         clearInterval(keepaliveInterval)
@@ -310,11 +342,20 @@ function Stream() {
         // Modal window
         return () => {
             isUnmounting = true
+            iceSignal.cancelled = true
             xPlayer.getEventBus().removeListener?.('connectionstate', connectionStateHandler)
 
             if(keepaliveInterval !== undefined){
                 clearInterval(keepaliveInterval)
                 keepaliveInterval = undefined
+            }
+            if(pathLogInterval !== undefined){
+                clearInterval(pathLogInterval)
+                pathLogInterval = undefined
+            }
+            if(stopFollowingPicture !== undefined){
+                stopFollowingPicture()
+                stopFollowingPicture = undefined
             }
 
             xPlayer.close()

@@ -1,5 +1,16 @@
 import Application from '../application'
 import xCloudApi, { playResult } from './xcloudapi'
+import { acquireStreamPerformance, releaseStreamPerformance } from './streamPerformance'
+
+function sessionStatus(error: unknown): number | undefined {
+    const status = (error as { status?: number })?.status
+    return typeof status === 'number' ? status : undefined
+}
+
+function isFinishedSession(error: unknown): boolean {
+    const status = sessionStatus(error)
+    return status === 401 || status === 404 || status === 410
+}
 
 interface streamSession {
     id: string;
@@ -63,6 +74,7 @@ export default class StreamManager {
                 }
                 this._sessions[sessionId] = streamSession
                 this.monitorSession(sessionId)
+                acquireStreamPerformance()
 
                 resolve(sessionId)
             }).catch((error) => {
@@ -71,26 +83,35 @@ export default class StreamManager {
         })
     }
 
-    stopStream(sessionId){
+    dropSession(sessionId: string){
+        this.clearMonitorTimeout(sessionId)
+        delete this._sessions[sessionId]
+        if(Object.keys(this._sessions).length === 0){
+            releaseStreamPerformance()
+        }
+    }
+
+    async stopStream(sessionId){
         this.clearMonitorTimeout(sessionId)
 
-        return new Promise((resolve, reject) => {
-            const session = this.getSession(sessionId)
-            if(session === undefined){
-                reject('Session not found: '+sessionId)
-                return
+        const session = this.getSession(sessionId)
+        if(session === undefined){
+            this._application.log('StreamManager', 'stopStream('+sessionId+') session is already gone')
+            return false
+        }
+
+        try {
+            const result = await this.getApi(session.type).stopStream(sessionId)
+            this.dropSession(sessionId)
+            return result
+        } catch (error) {
+            if(!isFinishedSession(error)){
+                throw error
             }
-
-            this.getApi(session.type).stopStream(sessionId).then((result) => {
-                console.log('Current sessions:', this._sessions)
-                delete this._sessions[sessionId]
-                console.log('new sessions:', this._sessions)
-
-                resolve(result)
-            }).catch((error) => {
-                reject(error)
-            })
-        })
+            this._application.log('StreamManager', 'stopStream('+sessionId+') session is already closed (status '+sessionStatus(error)+')')
+            this.dropSession(sessionId)
+            return false
+        }
     }
 
     sendSdp(sessionId:string, sdp:any){
@@ -259,8 +280,7 @@ export default class StreamManager {
 
                 if(error.status === 404){
                     this._application.log('StreamManager', 'Session not found on server. Removing session...')
-                    this.clearMonitorTimeout(sessionId)
-                    delete this._sessions[sessionId]
+                    this.dropSession(sessionId)
                 } else {
                     this.monitorSession(sessionId)
                 }
