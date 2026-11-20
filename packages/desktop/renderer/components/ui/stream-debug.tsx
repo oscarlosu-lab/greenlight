@@ -46,7 +46,7 @@ export default function StreamDebug({ player }: { player: XCloudPlayer }) {
 
         let previous: RTCInboundRtpStreamStats | undefined
         let previousConnection: RTCPeerConnection | undefined
-        let timer: number | undefined
+        let timer: ReturnType<typeof setTimeout> | undefined
         let stopped = false
 
         async function sample() {
@@ -84,14 +84,14 @@ export default function StreamDebug({ player }: { player: XCloudPlayer }) {
             } catch {
                 // The peer connection may close between samples.
             } finally {
-                if (!stopped) timer = window.setTimeout(sample, sampleIntervalMs)
+                if (!stopped) timer = setTimeout(sample, sampleIntervalMs)
             }
         }
 
         void sample()
         return () => {
             stopped = true
-            window.clearTimeout(timer)
+            if (timer !== undefined) clearTimeout(timer)
             jitterPlot.destroy()
             dropsPlot.destroy()
         }

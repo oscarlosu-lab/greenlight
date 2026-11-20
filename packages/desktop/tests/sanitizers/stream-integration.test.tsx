@@ -139,6 +139,7 @@ jest.mock('xbox-xcloud-player', () => {
 import xCloudPlayer from 'xbox-xcloud-player'
 import Stream from '../../renderer/pages/stream/[serverid]'
 import StreamComponent from '../../renderer/components/ui/streamcomponent'
+import StreamDebug from '../../renderer/components/ui/stream-debug'
 import StreamPreload from '../../renderer/components/ui/streampreload'
 
 describe('Stream integration sanitizers', () => {
@@ -287,12 +288,19 @@ describe('Stream integration sanitizers', () => {
         env.registerElement('component_streamcomponent_waitingtimes_seconds')
         queueCallback!({}, { estimatedTotalWaitTimeInSeconds: 0 })
 
-        componentMounted.unmount()
-        expect(mockIpcRemoveListener).toHaveBeenCalledWith('streaming', { action: 'onQueue', index: 0 })
+        // Debug stats are on-demand: no uPlot charts created while debug panel is closed
+        expect(createdUplots).toHaveLength(0)
+
+        const debugMounted = harness.mount(StreamDebug, { player })
+        await flushMicrotasks()
         expect(createdUplots).toHaveLength(2)
+        debugMounted.unmount()
         for (const chart of createdUplots) {
             expect(chart.destroy).toHaveBeenCalledTimes(1)
         }
+
+        componentMounted.unmount()
+        expect(mockIpcRemoveListener).toHaveBeenCalledWith('streaming', { action: 'onQueue', index: 0 })
 
         streamMounted.unmount()
         expect(player.getEventBus().listenerCount('connectionstate')).toBe(0)
