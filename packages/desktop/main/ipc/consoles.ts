@@ -8,19 +8,18 @@ export default class IpcConsoles extends IpcBase {
     _consolesLastUpdate = 0
 
     get(){
-        return new Promise((resolve, reject) => {
-            if(this._consolesLastUpdate < Date.now() - 60*1000){
-                withTokenRefresh(this._application, () => this._application._webApi.providers.smartglass.getConsolesList()).then((consoles) => {
-                    this._consoles = consoles.data.result
-                    this._consolesLastUpdate = Date.now()
-
-                    resolve(this._consoles)
-                }).catch((error) => {
-                    reject(error)
-                })
-            } else {
-                resolve(this._consoles)
+        if(this._consolesLastUpdate >= Date.now() - 60*1000){
+            return Promise.resolve(this._consoles)
+        }
+        return withTokenRefresh(this._application, () => {
+            if(!this._application._webApi){
+                return Promise.reject(new Error('Xbox Web API is not initialized (401)'))
             }
+            return this._application._webApi.providers.smartglass.getConsolesList()
+        }).then((consoles) => {
+            this._consoles = consoles?.data?.result || []
+            this._consolesLastUpdate = Date.now()
+            return this._consoles
         })
     }
 
@@ -42,14 +41,14 @@ export default class IpcConsoles extends IpcBase {
     }
 
     sendPowerCommand(consoleId: string, command: 'powerOn' | 'powerOff'){
-        return new Promise((resolve, reject) => {
-            this._application._webApi.providers.smartglass[command](consoleId).then(() => {
-                this._consolesLastUpdate = 0
-
-                resolve(true)
-            }).catch((error) => {
-                reject(error)
-            })
+        return withTokenRefresh(this._application, () => {
+            if(!this._application._webApi){
+                return Promise.reject(new Error('Xbox Web API is not initialized (401)'))
+            }
+            return this._application._webApi.providers.smartglass[command](consoleId)
+        }).then(() => {
+            this._consolesLastUpdate = 0
+            return true
         })
     }
 }

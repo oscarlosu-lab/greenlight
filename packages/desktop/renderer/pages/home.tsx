@@ -94,10 +94,16 @@ function copyText(text: string): Promise<void> {
     })
 }
 
+function isSessionExpiredError(error: unknown): boolean {
+    const message = typeof error === 'string' ? error : ((error as any)?.message || '')
+    return /token_expired|TokenRefreshError|authenticate|refresh|\b401\b/i.test(message)
+}
+
 function Home() {
-    const consoles = useQuery('consoles', () => Ipc.send('consoles', 'get'), { staleTime: 60*1000 })
+    const consoles = useQuery('consoles', () => Ipc.send('consoles', 'get'), { staleTime: 60*1000, retry: false })
     const queryClient = useQueryClient()
     const { t } = useTranslation()
+    const consolesList = Array.isArray(consoles.data) ? consoles.data : []
 
     // Power command in progress for each console: turning it on or off.
     const [pending, setPending] = useState<Record<string, '' | 'on' | 'off'>>({})
@@ -216,7 +222,11 @@ function Home() {
                 paddingTop: '20px',
             }}>
                 { (consoles.isLoading === true) ? <Loader></Loader> :
-                    (consoles.isFetched === true && consoles.data.length > 0) ? consoles.data.map((item, i) => {
+                    (consoles.isError === true) ? <Card className='padbottom' key='consoles-error'>
+                        <p>{ isSessionExpiredError(consoles.error) ? t('page.myConsoles.sessionExpired') : t('page.myConsoles.loadFailed') }</p>
+                        <Button label={t('page.myConsoles.retryBtn')} className='btn-primary' onClick={ () => { void consoles.refetch() } }></Button>
+                    </Card> :
+                    (consolesList.length > 0) ? consolesList.map((item, i) => {
                         const canPower = item.remoteManagementEnabled === true && item.consoleStreamingEnabled === true
                         const isOn = item.powerState === 'On'
                         const busy = !!pending[item.id]

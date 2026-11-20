@@ -6,11 +6,20 @@ export function isUnauthorizedError(error:unknown):boolean {
     if(typeof error !== 'object' || error === null){
         return false
     }
-    const { status, message } = error as { status?:unknown, message?:unknown }
-    if(status === 401){
+    const { status, statusCode, response, message } = error as {
+        status?:unknown,
+        statusCode?:unknown,
+        response?:{ status?:unknown },
+        message?:unknown,
+    }
+    if(status === 401 || statusCode === 401 || response?.status === 401){
         return true
     }
-    return typeof message === 'string' && /"statuscode":\s*401\b/.test(message)
+    return typeof message === 'string' && (
+        /"statuscode":\s*401\b/i.test(message)
+        || /\b401\b/.test(message)
+        || /token_expired/i.test(message)
+    )
 }
 
 // Runs an API call; if its token was refused, refreshes the tokens and runs it once more.
