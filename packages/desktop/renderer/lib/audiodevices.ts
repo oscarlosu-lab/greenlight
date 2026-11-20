@@ -12,28 +12,40 @@ const aliasDeviceIds = ['default', 'communications']
 export function useAudioDevices(): AudioDevices {
     const [inputs, setInputs] = React.useState<MediaDeviceInfo[]>([])
     const [outputs, setOutputs] = React.useState<MediaDeviceInfo[]>([])
+    const mountedRef = React.useRef(true)
 
     const refresh = React.useCallback(() => {
         if (typeof navigator === 'undefined' || !navigator.mediaDevices?.enumerateDevices) {
             return
         }
-        navigator.mediaDevices.enumerateDevices().then((devices) => {
+        void navigator.mediaDevices.enumerateDevices().then((devices) => {
+            if (!mountedRef.current) {
+                return
+            }
             const realDevices = devices.filter(device => !aliasDeviceIds.includes(device.deviceId))
             setInputs(realDevices.filter(device => device.kind === 'audioinput'))
             setOutputs(realDevices.filter(device => device.kind === 'audiooutput'))
         }).catch((error) => {
             console.error('AudioDevices: failed to enumerate devices:', error)
+            if (mountedRef.current) {
+                setInputs([])
+                setOutputs([])
+            }
         })
     }, [])
 
     React.useEffect(() => {
+        mountedRef.current = true
         if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
-            return
+            return () => {
+                mountedRef.current = false
+            }
         }
         refresh()
         navigator.mediaDevices.addEventListener?.('devicechange', refresh)
 
         return () => {
+            mountedRef.current = false
             navigator.mediaDevices.removeEventListener?.('devicechange', refresh)
         }
     }, [refresh])

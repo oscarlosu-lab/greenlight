@@ -192,7 +192,11 @@ function StreamComponent({
     function startMic() {
         const chatChannel = xPlayer.getChannelProcessor('chat')
 
-        getMicStream(settings.audio_input_device).then((stream) => {
+        void getMicStream(settings.audio_input_device).then((stream) => {
+            if (!isMountedRef.current) {
+                stream.getTracks().forEach(track => track.stop())
+                return
+            }
             micStreamRef.current = stream
             stream.getTracks().forEach(track => {
                 xPlayer._webrtcClient?.addTrack(track, stream)
@@ -206,7 +210,9 @@ function StreamComponent({
             // Device labels can be empty until microphone permission is granted
             audioDevices.refresh()
         }).catch((error) => {
-            alert(`getUserMedia() error: ${error.name}`)
+            if (isMountedRef.current) {
+                alert(`getUserMedia() error: ${error?.name || error}`)
+            }
         })
     }
 
@@ -229,7 +235,11 @@ function StreamComponent({
             return
         }
 
-        getMicStream(deviceId).then((newStream) => {
+        void getMicStream(deviceId).then((newStream) => {
+            if (!isMountedRef.current) {
+                newStream.getTracks().forEach(track => track.stop())
+                return
+            }
             const oldTrack = oldStream.getAudioTracks()[0]
             const sender = xPlayer._webrtcClient?.getSenders().find(sender => sender.track === oldTrack)
             if (sender === undefined) {
@@ -241,6 +251,9 @@ function StreamComponent({
             return sender.replaceTrack(newStream.getAudioTracks()[0]).then(() => {
                 oldStream.getTracks().forEach(track => track.stop())
                 micStreamRef.current = newStream
+            }).catch((error) => {
+                newStream.getTracks().forEach(track => track.stop())
+                throw error
             })
         }).catch((error) => {
             console.error('Failed to switch input device:', error)
@@ -254,8 +267,8 @@ function StreamComponent({
         })
 
         const audioElement = document.getElementsByTagName('audio')[0]
-        if (audioElement) {
-            audioElement.setSinkId(deviceId).catch((error) => {
+        if (audioElement && typeof audioElement.setSinkId === 'function') {
+            void audioElement.setSinkId(deviceId).catch((error) => {
                 console.error('Failed to switch output device:', error)
             })
         }
