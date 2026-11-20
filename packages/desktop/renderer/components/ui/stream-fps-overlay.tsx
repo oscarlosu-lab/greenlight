@@ -30,7 +30,7 @@ interface StreamFpsOverlayProps {
 }
 
 export default function StreamFpsOverlay({ metrics, position, onPositionChange }: StreamFpsOverlayProps) {
-    const fpsText = metrics ? `${metrics.fps} FPS` : '-- FPS'
+    const fpsText = metrics ? `${metrics.fps}FPS` : '--FPS'
     const initial = position && typeof position.x === 'number' && typeof position.y === 'number'
         ? position
         : DEFAULT_FPS_OVERLAY_POS

@@ -141,7 +141,7 @@ describe('Real-time FPS & stream metrics overlay', () => {
         expect(tree.props.style.left).toBe(100)
         expect(tree.props.style.top).toBe(120)
         expect(tree.props.style.cursor).toBe('grab')
-        expect(tree.props.children).toBe('60 FPS')
+        expect(tree.props.children).toBe('60FPS')
         expect(tree.props['aria-hidden']).toBe('true')
 
         expect(clampOverlayPosition({ x: -50, y: -10 }, 1920, 1080, 140, 44)).toEqual({ x: 0, y: 0 })
