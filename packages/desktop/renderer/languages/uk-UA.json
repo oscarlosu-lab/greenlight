@@ -151,6 +151,8 @@
         "aspectSizeValueZoom": "Зум",
         "forceLowResLabel": "Примусово низька роздільна здатність відео",
         "forceLowResDescription": "(Ця опція корисна на Steam Deck і дозволяє додатку працювати у низькій роздільній здатності, щоб можна було увімкнути FSR.)",
+        "clarityBoostLabel": "Clarity Boost",
+        "clarityBoostDescription": "(Підвищує різкість відео потоку. Вищі значення підсилюють різкість, контрастність і насиченість.)",
         "audioTitle": "Аудіо",
         "disableAudioLabel": "Вимкнути аудіо"
       },

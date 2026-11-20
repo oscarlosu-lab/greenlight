@@ -145,6 +145,8 @@
         "aspectSizeValueZoom": "Zoomen",
         "forceLowResLabel": "Erzwinge niedrige Aulösung",
         "forceLowResDescription": "(Diese Einstellung ist auf dem Steam Deck hilfreich und erlaubt der Anwendung, in einer niedrigen Auflösung dargestellt und mittels FSR skaliert zu werden.)",
+        "clarityBoostLabel": "Clarity Boost",
+        "clarityBoostDescription": "(Schärft das Stream-Video. Höhere Werte erhöhen Schärfe, Kontrast und Farbsättigung.)",
         "audioTitle": "Audio",
         "disableAudioLabel": "Audio deaktivieren",
         "videoTitle": "videoTitle"

@@ -4,6 +4,7 @@ module.exports = {
     testMatch: [
         '<rootDir>/tests/sanitizers/**/*.test.ts',
         '<rootDir>/tests/sanitizers/**/*.test.tsx',
+        '<rootDir>/tests/lib/**/*.spec.ts',
     ],
     transform: {
         '^.+\\.tsx?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.test.json' }],

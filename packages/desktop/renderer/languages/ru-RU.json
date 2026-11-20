@@ -151,6 +151,8 @@
         "aspectSizeValueZoom": "Зум",
         "forceLowResLabel": "Принудительно низкое разрешение видео",
         "forceLowResDescription": "(Эта опция полезна на Steam Deck и позволяет приложению работать в низком разрешении, чтобы можно было включить FSR.)",
+        "clarityBoostLabel": "Clarity Boost",
+        "clarityBoostDescription": "(Повышает резкость видео потока. Более высокие значения усиливают резкость, контрастность и насыщенность.)",
         "audioTitle": "Аудио",
         "disableAudioLabel": "Отключить аудио"
       },

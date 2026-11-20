@@ -145,6 +145,8 @@
         "aspectSizeValueZoom": "Zoom",
         "forceLowResLabel": "Forzar video en baja resolución",
         "forceLowResDescription": "(Esta opción es útil en dispositivos como Steam Deck, ya que permite que la aplicación renderice a menor resolución para poder activar el escalado FSR).",
+        "clarityBoostLabel": "Clarity Boost",
+        "clarityBoostDescription": "(Aplica enfoque 3x3 y realce visual al vídeo del stream. Valores más altos aumentan la nitidez, contraste y saturación.)",
         "audioTitle": "Audio",
         "disableAudioLabel": "Desactivar audio",
         "videoTitle": "Título Vídeo"
