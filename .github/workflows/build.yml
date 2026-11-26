@@ -30,6 +30,10 @@ env:
   node_version: 24
   reset_cache: ${{ inputs.reset_cache || false }}
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   ###
   # Build Desktop V2
@@ -140,7 +144,7 @@ jobs:
       - name: Build yarn cache
         run: flatpak-node-generator yarn yarn.lock -o ./deps-dist/yarn-sources.json
 
-      - uses: actions/upload-artifact@0c366cb4fc8897159c94880f94b55bc716ad6a66 # master
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: flatpak-sources
           path: ./deps-dist/
