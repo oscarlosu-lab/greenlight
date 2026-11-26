@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenlight Windows Edition — 1440p Xbox Remote Play &amp; xCloud Client (HEVC/AV1, Real-Time FPS HUD)</title>
+  <meta name="description" content="Download Greenlight v2.5.1 for Windows: the open-source Xbox Cloud Gaming (xCloud) and Xbox Remote Play client with 1440p streaming, HEVC &amp; AV1 decoding, Clarity Boost, LAN low-latency ICE, DPAPI multi-account security, 4-player co-op, and a draggable real-time FPS overlay.">
+  <meta name="keywords" content="Greenlight Xbox, Xbox Remote Play 1440p PC, xCloud Windows client, Xbox Cloud Gaming desktop app, Xbox Series X streaming PC, HEVC AV1 xCloud, Xbox Remote Play low latency LAN, Clarity Boost Windows, Greenlight oscarlosu-lab, Xbox FPS overlay, ROG Ally xCloud, Legion Go Xbox Remote Play">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="author" content="oscarlosu-lab">
+  <meta name="theme-color" content="#107c10">
+  <link rel="canonical" href="https://oscarlosu-lab.github.io/greenlight/">
+  <link rel="alternate" hreflang="en" href="https://oscarlosu-lab.github.io/greenlight/?lang=en">
+  <link rel="alternate" hreflang="es" href="https://oscarlosu-lab.github.io/greenlight/?lang=es">
+  <link rel="alternate" hreflang="x-default" href="https://oscarlosu-lab.github.io/greenlight/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%230b110d' stroke='%234ade80' stroke-width='4'/%3E%3Cpath d='M18 19c8 4 14 11 14 13s-6 9-14 13m28-26c-8 4-14 11-14 13s6 9 14 13' fill='none' stroke='%234ade80' stroke-width='4.5' stroke-linecap='round'/%3E%3C/svg%3E">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Greenlight Windows Edition — 1440p Xbox Remote Play &amp; xCloud Client">
+  <meta property="og:description" content="Open-source Windows client for Xbox Cloud Gaming &amp; Remote Play. 1440p, HEVC/AV1, Clarity Boost, LAN low-latency, DPAPI auth, 4-player co-op &amp; draggable FPS HUD.">
+  <meta property="og:url" content="https://oscarlosu-lab.github.io/greenlight/">
+  <meta property="og:site_name" content="Greenlight Windows Edition">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Greenlight v2.5.1 — 1440p Xbox Remote Play &amp; xCloud for Windows">
+  <meta name="twitter:description" content="1440p streaming, HEVC/AV1 codecs, Clarity Boost, LAN low-latency, DPAPI multi-account, and draggable real-time FPS HUD.">
+
+  <!-- Structured Data: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Greenlight — Windows Edition",
+    "alternateName": ["Greenlight Xbox Client", "Greenlight xCloud Windows", "Greenlight oscarlosu-lab"],
+    "operatingSystem": "Windows 10, Windows 11",
+    "applicationCategory": "GameApplication",
+    "softwareVersion": "2.5.1",
+    "url": "https://oscarlosu-lab.github.io/greenlight/",
+    "downloadUrl": "https://github.com/oscarlosu-lab/greenlight/releases/download/v2.5.1/Greenlight%20Setup%202.5.1.exe",
+    "releaseNotes": "https://github.com/oscarlosu-lab/greenlight/releases/tag/v2.5.1",
+    "license": "https://opensource.org/licenses/MIT",
+    "author": {
+      "@type": "Person",
+      "name": "oscarlosu-lab",
+      "url": "https://github.com/oscarlosu-lab"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "1440p Xbox Remote Play and xCloud streaming on Windows",
+      "HEVC (H.265), AV1, and H.264 High codec selection with RTX/FEC resilience",
+      "Clarity Boost GPU sharpening",
+      "Private-IPv4 host-first LAN low-latency ICE routing",
+      "Draggable real-time WebRTC FPS overlay",
+      "Windows DPAPI encrypted multi-account token storage",
+      "4-player local co-op, touch overlay, and custom button remapping",
+      "Multi-instance profiles via --profile"
+    ]
+  }
+  </script>
+
+  <!-- Structured Data: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How is Greenlight Windows Edition different from the official Xbox app or upstream Greenlight?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Greenlight Windows Edition v2.5.1 adds ~100 improvements over upstream v2.4.2, including 1440p streaming, HEVC/AV1 codec selection, Clarity Boost, LAN host-first UDP routing, DPAPI multi-account encryption, 4-player co-op, and a draggable real-time FPS HUD."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Greenlight support 1440p and HEVC or AV1 on Xbox Remote Play and xCloud?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. You can select 720p, 1080p, or 1440p and prioritize H.264, HEVC (H.265), or AV1 with automatic H.264 High fallback and preserved RTX/FEC packet recovery."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Greenlight work on Windows gaming handhelds like ROG Ally, Legion Go, or Claw?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Greenlight runs natively on Windows 10 and Windows 11 with built-in gamepad UI navigation, vibration, Clarity Boost, custom button remapping, and optional touch overlays."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How are Microsoft and Xbox login tokens stored securely?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "All authentication tokens are encrypted on disk using Windows DPAPI via Electron safeStorage (enc:v1:), with automatic 401 token refresh, Microsoft QR login, and isolated multi-account profiles."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #070b08;
+      --bg-elev: #0e1511;
+      --bg-card: #121c16;
+      --border: rgba(74, 222, 128, 0.18);
+      --border-strong: rgba(74, 222, 128, 0.45);
+      --xbox-green: #107c10;
+      --xbox-bright: #4ade80;
+      --xbox-glow: rgba(16, 124, 16, 0.38);
+      --text: #f0fdf4;
+      --muted: #9cb3a4;
+      --kofi: #ff5e5b;
+      --radius: 14px;
+      --maxw: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background:
+        radial-gradient(900px 500px at 15% -10%, rgba(16, 124, 16, 0.30), transparent 65%),
+        radial-gradient(750px 420px at 88% 8%, rgba(74, 222, 128, 0.12), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px);
+      background: rgba(7, 11, 8, 0.84);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 68px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      font-size: 1.12rem;
+    }
+    .brand-orb {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #4ade80, #107c10 70%, #073807);
+      box-shadow: 0 0 18px var(--xbox-glow);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: #051107;
+      font-size: 1rem;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+    nav a:hover { color: var(--xbox-bright); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.86rem;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .pill-btn:hover { transform: translateY(-1px); border-color: var(--border-strong); }
+    .pill-kofi {
+      background: rgba(255, 94, 91, 0.14);
+      border-color: rgba(255, 94, 91, 0.45);
+      color: #ffd9d8;
+    }
+    .pill-kofi:hover { background: rgba(255, 94, 91, 0.24); border-color: var(--kofi); }
+
+    /* Hero */
+    .hero {
+      padding: 64px 0 48px;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 36px;
+      align-items: center;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(16, 124, 16, 0.22);
+      border: 1px solid var(--border-strong);
+      color: var(--xbox-bright);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(2.1rem, 4.2vw, 3.35rem);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+    }
+    .accent { color: var(--xbox-bright); }
+    .hero-sub {
+      margin: 0 0 26px;
+      color: var(--muted);
+      font-size: 1.08rem;
+      max-width: 60ch;
+    }
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 22px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #16a34a, #107c10);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.98rem;
+      box-shadow: 0 10px 30px rgba(16, 124, 16, 0.45);
+      border: 1px solid rgba(74, 222, 128, 0.55);
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    .btn-secondary:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+
+    .hero-specs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+    .spec-chip {
+      padding: 5px 11px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    /* Interactive Xbox Stream Mockup */
+    .stream-stage {
+      position: relative;
+      border-radius: 18px;
+      border: 1px solid var(--border-strong);
+      background:
+        radial-gradient(circle at 70% 30%, rgba(74, 222, 128, 0.18), transparent 52%),
+        linear-gradient(155deg, #102016 0%, #09100c 55%, #060907 100%);
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 40px rgba(16, 124, 16, 0.22);
+      user-select: none;
+    }
+    .stage-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.55);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .stage-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .stage-tag {
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(16, 124, 16, 0.35);
+      color: #bbf7d0;
+      font-family: ui-monospace, Consolas, monospace;
+      font-weight: 700;
+    }
+    .stage-body {
+      position: relative;
+      height: calc(100% - 41px);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .nexus-ring {
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      border: 2px solid rgba(74, 222, 128, 0.35);
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 32px rgba(74, 222, 128, 0.16), 0 0 35px rgba(16, 124, 16, 0.35);
+      margin: 0 auto 12px;
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: var(--xbox-bright);
+    }
+    .stage-hint {
+      font-size: 0.84rem;
+      color: var(--muted);
+      max-width: 34ch;
+      margin: 0 auto;
+    }
+    .fps-demo {
+      position: absolute;
+      left: 18px;
+      top: 16px;
+      z-index: 10;
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1;
+      color: #4ade80;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.92);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      cursor: grab;
+      touch-action: none;
+      padding: 4px 6px;
+      border-radius: 8px;
+    }
+    .fps-demo:active { cursor: grabbing; background: rgba(0, 0, 0, 0.35); }
+
+    /* Sections */
+    section { padding: 48px 0; }
+    .section-head {
+      margin-bottom: 26px;
+    }
+    .section-head h2 {
+      margin: 0 0 8px;
+      font-size: clamp(1.55rem, 2.8vw, 2.2rem);
+      letter-spacing: -0.01em;
+    }
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 68ch;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    .card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+    .card-kicker {
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--xbox-bright);
+      margin-bottom: 8px;
+    }
+    .card h3 { margin: 0 0 8px; font-size: 1.12rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.94rem; }
+
+    /* Comparison Table */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+    th, td {
+      padding: 14px 18px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.94rem;
+    }
+    th {
+      background: rgba(16, 124, 16, 0.18);
+      color: #dcfce7;
+      font-weight: 800;
+    }
+    tr:last-child td { border-bottom: none; }
+    .yes { color: var(--xbox-bright); font-weight: 700; }
+    .no { color: #9ca3af; }
+
+    /* FAQ */
+    .faq-list {
+      display: grid;
+      gap: 12px;
+    }
+    details {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+    details[open] { border-color: var(--border-strong); }
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1rem;
+      list-style: none;
+    }
+    details p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    /* Community / Ko-fi */
+    .community-box {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(16, 124, 16, 0.24), rgba(18, 28, 22, 0.95));
+      border: 1px solid var(--border-strong);
+      border-radius: 18px;
+      padding: 28px;
+    }
+    .community-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 0 40px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .footer-links {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .footer-links a:hover { color: var(--xbox-bright); }
+
+    @media (max-width: 940px) {
+      .hero-grid, .community-box { grid-template-columns: 1fr; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .community-actions { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav-wrap">
+      <a class="brand" href="#top" aria-label="Greenlight Windows Edition Home">
+        <span class="brand-orb">G</span>
+        <span>Greenlight <span class="accent">Windows</span></span>
+      </a>
+      <nav aria-label="Primary Navigation">
+        <a href="#features" data-i18n="nav_features">Features</a>
+        <a href="#comparison" data-i18n="nav_compare">Comparison</a>
+        <a href="#faq" data-i18n="nav_faq">FAQ</a>
+        <a href="https://github.com/oscarlosu-lab/greenlight" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+      <div class="nav-actions">
+        <button id="langToggle" class="pill-btn" type="button" aria-label="Switch language">ES / EN</button>
+        <a class="pill-btn pill-kofi" href="https://ko-fi.com/oscarlosu" target="_blank" rel="noopener">☕ Ko-fi</a>
+        <a class="pill-btn" href="https://github.com/oscarlosu-lab/greenlight/releases/tag/v2.5.1" target="_blank" rel="noopener" data-i18n="nav_download">v2.5.1 Download</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow" data-i18n="hero_eyebrow">Xbox Remote Play &amp; xCloud • Windows PC Edition v2.5.1</span>
+          <h1 data-i18n="hero_title">Next-Gen <span class="accent">1440p Xbox Streaming</span> on Windows.</h1>
+          <p class="hero-sub" data-i18n="hero_sub">
+            Open-source desktop client for Xbox Cloud Gaming (xCloud) and Xbox Home Streaming (Remote Play). Built for Windows 10/11 &amp; PC gaming handhelds with HEVC/AV1 decoding, Clarity Boost, LAN low-latency routing, DPAPI multi-account security, and a draggable real-time FPS HUD.
+          </p>
+          <div class="cta-row">
+            <a class="btn-primary" href="https://github.com/oscarlosu-lab/greenlight/releases/download/v2.5.1/Greenlight%20Setup%202.5.1.exe" data-i18n="cta_installer">Download Windows Installer (v2.5.1)</a>
+            <a class="btn-secondary" href="https://github.com/oscarlosu-lab/greenlight/releases/download/v2.5.1/Greenlight-2.5.1-win.zip" data-i18n="cta_zip">Portable ZIP</a>
+            <a class="btn-secondary" href="https://github.com/oscarlosu-lab/greenlight" target="_blank" rel="noopener" data-i18n="cta_repo">View Source on GitHub</a>
+          </div>
+          <div class="hero-specs">
+            <span class="spec-chip">720p / 1080p / 1440p</span>
+            <span class="spec-chip">H.264 / HEVC / AV1 + RTX/FEC</span>
+            <span class="spec-chip">DPAPI enc:v1:</span>
+            <span class="spec-chip">Electron 45.3.4</span>
+            <span class="spec-chip">4-Player Co-op</span>
+          </div>
+        </div>
+
+        <div class="stream-stage" id="demoStage" aria-label="Interactive Greenlight Stream Preview">
+          <div class="stage-topbar">
+            <span>Greenlight • Xbox Series X (LAN)</span>
+            <div class="stage-badges">
+              <span class="stage-tag">1440p</span>
+              <span class="stage-tag">HEVC</span>
+              <span class="stage-tag">host-first UDP</span>
+            </div>
+          </div>
+          <div class="stage-body">
+            <div id="fpsDemo" class="fps-demo" title="Drag me anywhere">60FPS</div>
+            <div>
+              <div class="nexus-ring">XBOX</div>
+              <p class="stage-hint" data-i18n="stage_hint">Interactive preview: grab and drag the green <strong>60FPS</strong> HUD anywhere inside this stream frame, just like in Greenlight v2.5.1.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-head">
+          <h2 data-i18n="feat_title">Ahead of Upstream: Built for Serious Xbox Streaming</h2>
+          <p data-i18n="feat_sub">Over 100 improvements consolidated on top of Greenlight v2.4.2 for Windows desktops, laptops, ROG Ally, and Legion Go.</p>
+        </div>
+        <div class="cards-grid">
+          <article class="card">
+            <div class="card-kicker" data-i18n="f1_k">Video &amp; Codecs</div>
+            <h3 data-i18n="f1_t">1440p, HEVC / AV1 &amp; Clarity Boost</h3>
+            <p data-i18n="f1_d">Unlock 720p, 1080p, and 1440p streaming with unlimited bitrate mode, H.264 / HEVC (H.265) / AV1 preference, preserved RTX/FEC packet recovery, and real-time Clarity Boost sharpening.</p>
+          </article>
+          <article class="card">
+            <div class="card-kicker" data-i18n="f2_k">Low-Latency Telemetry</div>
+            <h3 data-i18n="f2_t">Draggable Real-Time FPS HUD</h3>
+            <p data-i18n="f2_d">Live WebRTC framesPerSecond readout rendered above the video stream in bold green (`60FPS`). Drag it anywhere on screen; your coordinates save automatically.</p>
+          </article>
+          <article class="card">
+            <div class="card-kicker" data-i18n="f3_k">LAN Performance</div>
+            <h3 data-i18n="f3_t">Host-First ICE &amp; Priority Boost</h3>
+            <p data-i18n="f3_d">Prioritizes private-IPv4 host UDP routes on your local network with TCP fallback, low-latency WebRTC playout hints, and Windows ABOVE_NORMAL stream process priority.</p>
+          </article>
+          <article class="card">
+            <div class="card-kicker" data-i18n="f4_k">Security &amp; Auth</div>
+            <h3 data-i18n="f4_t">DPAPI Multi-Account &amp; QR Login</h3>
+            <p data-i18n="f4_d">Tokens are encrypted at rest with Windows DPAPI (safeStorage), refreshed automatically on 401 expiry, and switchable across accounts or scannable via Microsoft QR code.</p>
+          </article>
+          <article class="card">
+            <div class="card-kicker" data-i18n="f5_k">Controllers &amp; Input</div>
+            <h3 data-i18n="f5_t">4-Player Local Co-op &amp; Remapping</h3>
+            <p data-i18n="f5_d">Opt-in 4-controller local co-op, custom button remapping, mouse &amp; keyboard pointer lock (Esc = Xbox Home), touch overlay presets, and full gamepad UI navigation.</p>
+          </article>
+          <article class="card">
+            <div class="card-kicker" data-i18n="f6_k">Power Tools</div>
+            <h3 data-i18n="f6_t">Multi-Instance, Screenshots &amp; GPU Tools</h3>
+            <p data-i18n="f6_d">Run isolated profiles with --profile, snap instant PNG screenshots, switch audio output devices live, toggle Discord Rich Presence, and inspect chrome://gpu or webrtc-internals.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="comparison">
+      <div class="container">
+        <div class="section-head">
+          <h2 data-i18n="cmp_title">Greenlight v2.5.1 vs Upstream v2.4.2 &amp; Official Xbox App</h2>
+          <p data-i18n="cmp_sub">Why Windows players choose the oscarlosu-lab fork for Remote Play and Xbox Cloud Gaming.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="th_feature">Capability</th>
+                <th>Greenlight v2.5.1 (Windows)</th>
+                <th>Upstream v2.4.2</th>
+                <th data-i18n="th_official">Official Xbox App</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-i18n="c1">1440p &amp; Unlimited Bitrate</td>
+                <td class="yes">Yes (720p / 1080p / 1440p)</td>
+                <td class="no">1080p cap</td>
+                <td class="no">1080p cap</td>
+              </tr>
+              <tr>
+                <td data-i18n="c2">HEVC (H.265) / AV1 Codec Selector</td>
+                <td class="yes">Yes + RTX/FEC preserved</td>
+                <td class="no">No</td>
+                <td class="no">No user selector</td>
+              </tr>
+              <tr>
+                <td data-i18n="c3">Draggable Real-Time FPS HUD</td>
+                <td class="yes">Yes (36px green, saved pos)</td>
+                <td class="no">No</td>
+                <td class="no">No</td>
+              </tr>
+              <tr>
+                <td data-i18n="c4">LAN Host-First UDP Routing</td>
+                <td class="yes">Yes + ABOVE_NORMAL priority</td>
+                <td class="no">Default ICE</td>
+                <td class="no">Closed</td>
+              </tr>
+              <tr>
+                <td data-i18n="c5">Windows DPAPI Token Encryption &amp; Multi-Account</td>
+                <td class="yes">Yes (enc:v1: + QR + 401 refresh)</td>
+                <td class="no">Plaintext / Single</td>
+                <td class="yes">System account</td>
+              </tr>
+              <tr>
+                <td data-i18n="c6">4-Player Local Co-op &amp; Isolated Multi-Instance</td>
+                <td class="yes">Yes (--profile=&lt;name&gt;)</td>
+                <td class="no">No</td>
+                <td class="no">No</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <div class="section-head">
+          <h2 data-i18n="faq_title">Frequently Asked Questions</h2>
+        </div>
+        <div class="faq-list">
+          <details open>
+            <summary data-i18n="q1">How is Greenlight Windows Edition different from upstream Greenlight?</summary>
+            <p data-i18n="a1">This fork focuses exclusively on Windows PCs and ships ~100 upgrades over v2.4.2: 1440p streaming, HEVC/AV1 decoding, Clarity Boost, LAN host-first ICE, DPAPI encrypted tokens, multi-account &amp; multi-instance support, 4-player co-op, 13 languages, Electron 45, and a draggable real-time FPS HUD.</p>
+          </details>
+          <details>
+            <summary data-i18n="q2">Does it work on Windows handhelds like ASUS ROG Ally, Lenovo Legion Go, or MSI Claw?</summary>
+            <p data-i18n="a2">Yes. It runs natively on Windows 10 and Windows 11 with built-in gamepad UI navigation, vibration support, custom button remapping, and Clarity Boost.</p>
+          </details>
+          <details>
+            <summary data-i18n="q3">Does the FPS counter show real live FPS?</summary>
+            <p data-i18n="a3">Yes. When enabled in Settings, Greenlight polls WebRTC inbound-rtp video statistics every second and displays the actual decoded framesPerSecond (for example 30FPS, 60FPS, or 120FPS) in a draggable overlay.</p>
+          </details>
+          <details>
+            <summary data-i18n="q4">Is it open source and free?</summary>
+            <p data-i18n="a4">Yes, Greenlight is 100% free and MIT-licensed. You can inspect the full source code, tests, and CI workflows on GitHub.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section id="community">
+      <div class="container">
+        <div class="community-box">
+          <div>
+            <h2 style="margin:0 0 8px" data-i18n="com_title">Support Development &amp; Join the Community</h2>
+            <p style="margin:0;color:var(--muted)" data-i18n="com_sub">Star the repository on GitHub, report issues, or support ongoing Windows performance and codec updates on Ko-fi.</p>
+          </div>
+          <div class="community-actions">
+            <a class="btn-secondary" href="https://github.com/oscarlosu-lab/greenlight/stargazers" target="_blank" rel="noopener">★ Star on GitHub</a>
+            <a class="btn-primary" style="background:linear-gradient(135deg,#ff5e5b,#d94845);border-color:rgba(255,150,148,0.6);box-shadow:0 10px 26px rgba(255,94,91,0.32)" href="https://ko-fi.com/oscarlosu" target="_blank" rel="noopener">☕ Support on Ko-fi</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-row">
+      <div>
+        <strong>Greenlight — Windows Edition</strong> • v2.5.1 • MIT License<br>
+        <span data-i18n="disclaimer">Not affiliated with Microsoft, Xbox, or Moonlight. All trademarks belong to their respective owners.</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/oscarlosu-lab/greenlight" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/oscarlosu-lab/greenlight/releases/tag/v2.5.1" target="_blank" rel="noopener">Releases</a>
+        <a href="https://ko-fi.com/oscarlosu" target="_blank" rel="noopener">Ko-fi</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const stage = document.getElementById('demoStage');
+      const hud = document.getElementById('fpsDemo');
+      let drag = null;
+
+      hud.addEventListener('pointerdown', (e) => {
+        const stageRect = stage.getBoundingClientRect();
+        const hudRect = hud.getBoundingClientRect();
+        drag = {
+          id: e.pointerId,
+          offX: e.clientX - hudRect.left,
+          offY: e.clientY - hudRect.top,
+          stageRect,
+          w: hudRect.width,
+          h: hudRect.height
+        };
+        hud.setPointerCapture(e.pointerId);
+      });
+
+      hud.addEventListener('pointermove', (e) => {
+        if (!drag || drag.id !== e.pointerId) return;
+        const x = Math.min(Math.max(8, e.clientX - drag.stageRect.left - drag.offX), drag.stageRect.width - drag.w - 8);
+        const y = Math.min(Math.max(46, e.clientY - drag.stageRect.top - drag.offY), drag.stageRect.height - drag.h - 8);
+        hud.style.left = Math.round(x) + 'px';
+        hud.style.top = Math.round(y) + 'px';
+      });
+
+      const endDrag = (e) => {
+        if (!drag || drag.id !== e.pointerId) return;
+        try { hud.releasePointerCapture(e.pointerId); } catch (_) {}
+        drag = null;
+      };
+      hud.addEventListener('pointerup', endDrag);
+      hud.addEventListener('pointercancel', endDrag);
+
+      const es = {
+        nav_features: 'Características',
+        nav_compare: 'Comparativa',
+        nav_faq: 'Preguntas',
+        nav_download: 'Descargar v2.5.1',
+        hero_eyebrow: 'Xbox Remote Play y xCloud • Edición Windows PC v2.5.1',
+        hero_title: 'Streaming Xbox en <span class="accent">1440p de nueva generación</span> en Windows.',
+        hero_sub: 'Cliente open-source para Xbox Cloud Gaming (xCloud) y Xbox Remote Play en Windows 10/11 y consolas portátiles PC, con decodificación HEVC/AV1, Clarity Boost, baja latencia en LAN, seguridad multi-cuenta DPAPI y contador FPS real arrastrable.',
+        cta_installer: 'Descargar Instalador Windows (v2.5.1)',
+        cta_zip: 'ZIP Portable',
+        cta_repo: 'Ver Código en GitHub',
+        stage_hint: 'Vista previa interactiva: agarra y arrastra el contador verde <strong>60FPS</strong> a cualquier punto del visor, igual que en Greenlight v2.5.1.',
+        feat_title: 'Por delante del upstream: diseñado para exprimir Xbox en PC',
+        feat_sub: 'Más de 100 mejoras sobre Greenlight v2.4.2 pensadas para sobremesa, portátiles, ROG Ally y Legion Go.',
+        f1_k: 'Vídeo y Códecs',
+        f1_t: '1440p, HEVC / AV1 y Clarity Boost',
+        f1_d: 'Streaming en 720p, 1080p y 1440p sin tope artificial de bitrate, selector H.264 / HEVC (H.265) / AV1 con recuperación RTX/FEC intacta y nitidez GPU Clarity Boost.',
+        f2_k: 'Telemetría en vivo',
+        f2_t: 'Contador FPS real arrastrable',
+        f2_d: 'Lectura real por WebRTC (framesPerSecond) sobre el vídeo en verde grande (60FPS). Arrástralo donde quieras y su posición queda guardada.',
+        f3_k: 'Rendimiento LAN',
+        f3_t: 'Ruta ICE host-first y prioridad alta',
+        f3_d: 'Prioriza rutas UDP locales en IPv4 privada con respaldo TCP, hints WebRTC de mínima latencia y prioridad ABOVE_NORMAL en Windows.',
+        f4_k: 'Seguridad y Auth',
+        f4_t: 'Multi-cuenta DPAPI y login con QR',
+        f4_d: 'Tokens cifrados con Windows DPAPI (safeStorage), refresco automático ante errores 401, cambio rápido de cuenta y login escaneando QR Microsoft.',
+        f5_k: 'Mandos y Control',
+        f5_t: 'Co-op local (4 mandos) y remapeo',
+        f5_d: 'Cooperativo local opt-in de hasta 4 mandos, remapeo personalizado, ratón y teclado exclusivos (Esc = Xbox Home), touch overlay y navegación por mando.',
+        f6_k: 'Herramientas Pro',
+        f6_t: 'Multi-instancia, capturas y diagnóstico',
+        f6_d: 'Perfiles simultáneos con --profile, capturas PNG instantáneas, selector en vivo de audio/micro, Discord Rich Presence y ventanas chrome://gpu.',
+        cmp_title: 'Greenlight v2.5.1 frente a Upstream v2.4.2 y App oficial de Xbox',
+        cmp_sub: 'Por qué los jugadores de Windows eligen el fork oscarlosu-lab para Remote Play y xCloud.',
+        th_feature: 'Función',
+        th_official: 'App Oficial Xbox',
+        faq_title: 'Preguntas Frecuentes',
+        q1: '¿En qué se diferencia Greenlight Edición Windows del proyecto original?',
+        a1: 'Este fork se centra exclusivamente en Windows PC e incluye ~100 mejoras sobre v2.4.2: streaming 1440p, códecs HEVC/AV1, Clarity Boost, ruta LAN host-first, cifrado DPAPI, multi-cuenta y multi-instancia, co-op de 4 mandos, 13 idiomas, Electron 45 y HUD de FPS reales arrastrable.',
+        q2: '¿Funciona en portátiles Windows como ASUS ROG Ally, Lenovo Legion Go o MSI Claw?',
+        a2: 'Sí. Funciona de forma nativa en Windows 10 y Windows 11 con navegación por mando, vibración, remapeo de botones y Clarity Boost.',
+        q3: '¿El contador de FPS muestra los FPS reales?',
+        a3: 'Sí. Al activarlo en Ajustes, Greenlight consulta cada segundo las estadísticas WebRTC del stream y muestra el framesPerSecond real en un cuadro verde arrastrable.',
+        q4: '¿Es gratuito y de código abierto?',
+        a4: 'Sí, es 100% gratuito bajo licencia MIT. Puedes revisar todo el código fuente, tests y compilaciones en GitHub.',
+        com_title: 'Apoya el proyecto y únete a la comunidad',
+        com_sub: 'Deja una estrella en GitHub, reporta sugerencias o apoya nuevas mejoras de rendimiento en Ko-fi.',
+        disclaimer: 'Sin afiliación con Microsoft, Xbox ni Moonlight. Todas las marcas pertenecen a sus respectivos propietarios.'
+      };
+
+      const en = {};
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        en[el.dataset.i18n] = el.innerHTML;
+      });
+
+      let current = (navigator.language || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
+      const applyLang = (lang) => {
+        current = lang;
+        document.documentElement.lang = lang;
+        const dict = lang === 'es' ? es : en;
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          const key = el.dataset.i18n;
+          if (dict[key]) el.innerHTML = dict[key];
+        });
+      };
+
+      applyLang(current);
+      document.getElementById('langToggle').addEventListener('click', () => {
+        applyLang(current === 'en' ? 'es' : 'en');
+      });
+    })();
+  </script>
+</body>
+</html>
