@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@greenlight/platform": "*",
-    "@tailwindcss/postcss": "^4.2.2",
+    "@tailwindcss/postcss": "^4.3.5",
     "@types/node": "^25.9.1",
     "@types/react": "^19.3.0",
     "electron": "43.2.0",
