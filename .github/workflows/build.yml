@@ -169,7 +169,7 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/download-artifact@2a5974104b6d5dbdb2f9468a3e54da3bdd241578 # master
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: flatpak-sources
           path: packages/desktop/flatpak/
@@ -399,7 +399,7 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/download-artifact@2a5974104b6d5dbdb2f9468a3e54da3bdd241578 # master
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: flatpak-sources
           path: packages/desktop-v3/flatpak/
