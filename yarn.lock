@@ -8061,10 +8061,10 @@ fsevents@2.3.3, fsevents@~2.3.2, fsevents@~2.3.3:
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.3.tgz#cac6407785d03675a2a5e1a5305c697b347d90d6"
   integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
-fumadocs-core@^16.19.0:
-  version "16.19.0"
-  resolved "https://registry.yarnpkg.com/fumadocs-core/-/fumadocs-core-16.19.0.tgz#d93c197a3bbc6339ee6bea6651be738c043490f9"
-  integrity sha512-CGKQNOQBGBovRbG+pz1fAGTCXcUBnLKpRW61MfzFIxwnWAoQtdM6fKe7Fk/WajwPcc6vZwCdoWoYDVZAMnaVpQ==
+fumadocs-core@^16.19.7:
+  version "16.19.7"
+  resolved "https://registry.yarnpkg.com/fumadocs-core/-/fumadocs-core-16.19.7.tgz#dba74ec8cb8cc1b1f18858db31618eea70aa9059"
+  integrity sha512-gLbdo7sMAoJXAS6XDbHd00xS2O7Y3Xf9EvxWvuPx8Ypb+5GFFBE738eo6ZCUqci7YvTNpW1MEW3jSj8TaZ3ONg==
   dependencies:
     "@fumari/image-size" "^0.1.1"
     acorn "^8.19.0"
@@ -8088,10 +8088,10 @@ fumadocs-core@^16.19.0:
     yaml "^2.9.1"
     zbsearch "^4.0.2"
 
-fumadocs-mdx@^15.6.1:
-  version "15.6.1"
-  resolved "https://registry.yarnpkg.com/fumadocs-mdx/-/fumadocs-mdx-15.6.1.tgz#196e9b645360e5d9d13b2578b53fca58ea790f61"
-  integrity sha512-uUXRwgkFed0z7MSydH5vRiTUX9OFQX3f0T43uSHqNCKn6Rs0QYrCmk4Bulvp32GVHImrHLrDU37hw6Vz3MqXMQ==
+fumadocs-mdx@^15.6.4:
+  version "15.6.4"
+  resolved "https://registry.yarnpkg.com/fumadocs-mdx/-/fumadocs-mdx-15.6.4.tgz#90cc1c4112dd9ba31aa89b0b012ddf706d7c798e"
+  integrity sha512-b5z5GjDxDzdc9K1/HwAL6X77xj0ddinJ5FJFXeIxYCRRQq2rqSFNTNAd2fo2UmQnr87jkuE25+o5iAV0mg48lw==
   dependencies:
     "@mdx-js/mdx" "^3.1.1"
     "@standard-schema/spec" "^1.1.0"
@@ -8116,23 +8116,23 @@ fumadocs-mdx@^15.6.1:
     yuku-analyzer "^0.19.0"
     zod "^4.6.7"
 
-fumadocs-typescript@^5.6.0:
-  version "5.6.0"
-  resolved "https://registry.yarnpkg.com/fumadocs-typescript/-/fumadocs-typescript-5.6.0.tgz#93816d5fdea9c236885f4fb2cafb3986f2b05186"
-  integrity sha512-ZJLYaK8zxsQggj1MTRhtFZxmPSUAhqZrhjo+zYupNcWDW+CfF2YhyYx42a/FWwGxErX0ZzXNLlQvBqkdWGHFlA==
+fumadocs-typescript@^5.6.2:
+  version "5.6.2"
+  resolved "https://registry.yarnpkg.com/fumadocs-typescript/-/fumadocs-typescript-5.6.2.tgz#b2dc816cee22b6c5115c12c5bd7824409bc6a622"
+  integrity sha512-DUElDUbBTaJVkfw6BgbPUoQqxYhlXFxM0vU6xFPwhoheyFwpw6vcWxBl6ob9r3jmz3lLBPkQ+4pGOve7YqU61g==
   dependencies:
     estree-util-value-to-estree "^3.5.0"
     hast-util-to-estree "^3.1.3"
     remark "^15.0.1"
     remark-rehype "^11.1.2"
-    shiki "^4.5.0"
+    shiki "^4.6.0"
     typescript "7.1.0-beta"
     unified "^11.0.5"
 
-fumadocs-ui@^16.19.0:
-  version "16.19.0"
-  resolved "https://registry.yarnpkg.com/fumadocs-ui/-/fumadocs-ui-16.19.0.tgz#13258cc4de729fe63bf70bfa950965925325114b"
-  integrity sha512-/enoAAdsJe9By/mTkc49EG9GiHsNG7GOcBfj9w46kg7sYcuLJcClIA51Gr7OsJ77rUbQ16VZ5YPC+3mHmRIsUA==
+fumadocs-ui@^16.19.7:
+  version "16.19.7"
+  resolved "https://registry.yarnpkg.com/fumadocs-ui/-/fumadocs-ui-16.19.7.tgz#7cee1a4c20220c96848315cdd4c24b87e47bbb5f"
+  integrity sha512-agPFkyAvQQxC1jah0mcq6cFVpZFwYEGKROpl87r1HXfax0hidv92vnAG5chimzsoOxbUwc+CQGEosNl8v7CJ/A==
   dependencies:
     "@fuma-translate/react" "^1.0.2"
     "@fumadocs/tailwind" "0.1.5"
@@ -8148,8 +8148,8 @@ fumadocs-ui@^16.19.0:
     "@radix-ui/react-tabs" "^1.2.1"
     class-variance-authority "^0.7.1"
     cn "^0.5.2"
-    lucide-react "^1.70.0"
-    motion "^14.10.1"
+    lucide-react "^1.71.0"
+    motion "^14.12.0"
     next-themes "^0.4.6"
     react-remove-scroll "^2.7.2"
     scroll-into-view-if-needed "^3.1.0"
@@ -10097,10 +10097,10 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-lucide-react@^1.70.0:
-  version "1.73.0"
-  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-1.73.0.tgz#70fb4bfc2a547bcb724cbc65e5feb8410adbbaa3"
-  integrity sha512-fVOzGviL9mTfHenG1PbCfIceavyGlnpYNSYr+aGZHLRymAJ7DTP6KHuqt0uBkCKAoenr1UVkwSbDIYt2xIesEQ==
+lucide-react@^1.71.0:
+  version "1.81.0"
+  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-1.81.0.tgz#504867d796e134e0554dd340dff5805a4c16b628"
+  integrity sha512-U+CisvFQ84m+xUJAKKA4q+mykGB1LAmu196hOblQbuNYJgD43iHwpmfYuqcFYHXJu2oqRih5JoH3f5LxwsUegg==
 
 magic-string@^0.30.17, magic-string@^0.30.21:
   version "0.30.21"
@@ -11000,7 +11000,7 @@ motion-utils@14.7.0:
   resolved "https://registry.yarnpkg.com/motion-utils/-/motion-utils-14.7.0.tgz#8577b2fb176dcb2496812a8b314ba80b7d834c84"
   integrity sha512-woO0/Nb7ys75f94fjvQi/6leiHGvZUYkeHUPEZ3vxsV+9OpEVhkxp01x8MlRwX0zt31EqgXsKDAoBoJLC148Tw==
 
-motion@^14.10.1:
+motion@^14.12.0:
   version "14.14.0"
   resolved "https://registry.yarnpkg.com/motion/-/motion-14.14.0.tgz#956e0f88ec0a1e62eb6e21b5564dfa837c168196"
   integrity sha512-a306U6sV5VKq1abtzKiinB+UQjiY88jrsvQzWORP3WPv/DFANyoYVlPbdnmJPMEbusyPXB4GyQJVANaq/pSIYQ==
@@ -11714,12 +11714,7 @@ picocolors@^1.0.0, picocolors@^1.1.1:
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.1.1.tgz#3d321af3eab939b083c8f929a1d12cda81c26b6b"
   integrity sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==
 
-picomatch@^2.0.4:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.2.1.tgz#21bac888b6ed8601f831ce7816e335bc779f0a4a"
-  integrity sha512-ISBaA8xQNmwELC7eOjqFKMESB2VIqt4PPDD0nsS95b/9dZXvVKOlz9keMSnoGGKcOHXfTvDD6WMaRoSc9UuhRA==
-
-picomatch@^2.3.1:
+picomatch@^2.0.4, picomatch@^2.3.1:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.2.tgz#5a942915e26b372dc0f0e6753149a16e6b1c5601"
   integrity sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==
@@ -12803,7 +12798,7 @@ shell-quote@1.8.3:
   resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.8.3.tgz#55e40ef33cf5c689902353a3d8cd1a6725f08b4b"
   integrity sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==
 
-shiki@^4.5.0, shiki@^4.6.0:
+shiki@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/shiki/-/shiki-4.6.0.tgz#1f1bfbcdc908411d52b9c3fc7ac4a2d4297a2288"
   integrity sha512-imjLsVHgPuWhvpU3P+zOekvMYqnel7QmKsFC4Sn0fCuAvaaalBsxwKEsrU8Ko5BdFnZA6Go/8a0RzahS634UgA==
