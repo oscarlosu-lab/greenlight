@@ -1,19 +1,19 @@
-# Greenlight — Windows Edition (`oscarlosu-lab/greenlight`)
+# Greenlight — Cross-Platform Edition (`oscarlosu-lab/greenlight`)
 
 > **[Leer en español (README_ES.md)](README_ES.md)** · **[Official Website (Xbox Gaming UI)](https://oscarlosu-lab.github.io/greenlight/)**
 
 [![Release](https://img.shields.io/github/v/release/oscarlosu-lab/greenlight?style=flat-square&color=107c10&label=Release)](https://github.com/oscarlosu-lab/greenlight/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/oscarlosu-lab/greenlight/total?style=flat-square&color=4ade80&label=Downloads)](https://github.com/oscarlosu-lab/greenlight/releases)
-[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D6?style=flat-square&logo=windows)](https://github.com/oscarlosu-lab/greenlight/releases/latest)
+[![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Linux%20%7C%20Steam%20Deck%20%7C%20macOS-0078D6?style=flat-square&logo=xbox)](https://github.com/oscarlosu-lab/greenlight/releases/latest)
 [![Electron](https://img.shields.io/badge/Electron-45.3.4-47848F?style=flat-square&logo=electron)](packages/desktop/package.json)
 [![License](https://img.shields.io/github/license/oscarlosu-lab/greenlight?style=flat-square)](LICENSE)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20Project-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white)](https://ko-fi.com/oscarlosu)
 
-**Greenlight Windows Edition** is the open-source **Xbox Cloud Gaming (xCloud)** and **Xbox Remote Play** desktop client for **Windows 10 / Windows 11** and PC gaming handhelds (**ASUS ROG Ally**, **Lenovo Legion Go**, **MSI Claw**), built with TypeScript, Electron 45, and [`xbox-xcloud-player`](https://github.com/unknownskl/xbox-xcloud-player).
+**Greenlight Cross-Platform Edition** is the open-source **Xbox Cloud Gaming (xCloud)** and **Xbox Remote Play** desktop client for **Windows 10/11**, **Linux (X11 / Wayland / Flatpak / AppImage / DEB)**, **Steam Deck**, **macOS (Universal DMG)**, and Windows PC gaming handhelds (**ASUS ROG Ally**, **Lenovo Legion Go**, **MSI Claw**), built with TypeScript, Electron 45, and [`xbox-xcloud-player`](https://github.com/unknownskl/xbox-xcloud-player).
 
 > [!IMPORTANT]
-> **Windows-Only Maintained Fork (Ahead of Upstream `unknownskl/greenlight v2.4.2`)**
-> This fork targets **Windows PC** exclusively and consolidates **~100 improvements** on top of upstream `v2.4.2` — including **1440p streaming**, **HEVC (H.265) / AV1** codec selection, **Clarity Boost**, LAN low-latency routing, **draggable real-time `<fps>FPS` HUD**, multi-account **DPAPI** encryption, **4-player local co-op**, and modern **Electron 45**. Releases and the built-in updater point directly to [`oscarlosu-lab/greenlight`](https://github.com/oscarlosu-lab/greenlight/releases).
+> **Cross-Platform Maintained Fork (Ahead of Upstream `unknownskl/greenlight v2.4.2`)**
+> This fork consolidates **100+ community improvements** across **Windows, Linux, Steam Deck, and macOS** on top of upstream `v2.4.2` — including **1440p streaming**, **HEVC (H.265) / AV1** codec selection, **Linux VA-API + Wayland**, **macOS microphone entitlements**, **configurable Remote Play port forwarding**, **Clarity Boost**, LAN low-latency routing, **draggable real-time `<fps>FPS` HUD**, multi-account **safeStorage/DPAPI** encryption, **4-player local co-op**, and modern **Electron 45**. Releases and the built-in updater point directly to [`oscarlosu-lab/greenlight`](https://github.com/oscarlosu-lab/greenlight/releases).
 
 _DISCLAIMER: Greenlight is not affiliated with Microsoft, Xbox, or Moonlight. All rights and trademarks belong to their respective owners._
 

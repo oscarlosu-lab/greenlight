@@ -338,7 +338,7 @@ export default class xCloudApi {
         })
     }
 
-    sendIce(sessionId:string, ice:any){
+    sendIce(sessionId:string, ice:any, remotePort = 9002){
         return new Promise((resolve, reject) => {
             const postData = {
                 'messageType': 'iceCandidate',
@@ -364,10 +364,10 @@ export default class xCloudApi {
                         if(candidateAddress.length > 4 && candidateAddress[4].substr(0, 4) === '2001'){
                             const address = new Address6(candidateAddress[4])
                             const teredo = address.inspectTeredo()
-                            this._application.log('stream-path', `teredo ${candidateAddress[4]} rewritten to public IPv4 ${teredo.client4} ports 9002 and ${teredo.udpPort}`)
+                            this._application.log('stream-path', `teredo ${candidateAddress[4]} rewritten to public IPv4 ${teredo.client4} ports ${remotePort} and ${teredo.udpPort}`)
 
                             computedCandidates.push({
-                                candidate: 'a=candidate:10 1 UDP 1 '+teredo.client4+' 9002 typ host ',
+                                candidate: 'a=candidate:10 1 UDP 1 '+teredo.client4+' '+remotePort+' typ host ',
                                 messageType: 'iceCandidate',
                                 sdpMLineIndex: '0',
                                 sdpMid: '0',

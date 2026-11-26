@@ -58,6 +58,10 @@ export const defaultSettings = {
     webui_autostart: false,
     webui_port: 9003,
 
+    // Remote Play public port forwarding (global default + per-console overrides)
+    remote_port: 9002,
+    remote_port_consoles: {},
+
     // Selected language for i18n. Empty means: follow the system language
     language: '',
 }

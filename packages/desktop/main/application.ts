@@ -82,11 +82,13 @@ export default class Application {
         // ElectronApp.commandLine.appendSwitch('enable-gpu-rasterization')
         // ElectronApp.commandLine.appendSwitch('enable-oop-rasterization')
         ElectronApp.commandLine.appendSwitch('enable-accelerated-video-decode')
-        // Let WebRTC offer H.265 for receiving, so the "HEVC" codec setting can be negotiated (H.264 stays as fallback)
-        ElectronApp.commandLine.appendSwitch('enable-features', 'WebRtcAllowH265Receive')
-        // ElectronApp.commandLine.appendSwitch('ozone-platform-hint', 'x11')
-        // ElectronApp.commandLine.appendSwitch('ignore-gpu-blocklist')
-        // ElectronApp.commandLine.appendSwitch('no-sandbox')
+        const enabledFeatures = ['WebRtcAllowH265Receive']
+        if (process.platform === 'linux') {
+            enabledFeatures.push('VaapiVideoDecoder', 'VaapiVideoDecodeLinuxGL', 'UseOzonePlatform')
+            ElectronApp.commandLine.appendSwitch('ozone-platform-hint', 'auto')
+        }
+        // Let WebRTC offer H.265 for receiving (and enable Linux VA-API/Wayland when on Linux)
+        ElectronApp.commandLine.appendSwitch('enable-features', enabledFeatures.join(','))
         ElectronApp.commandLine.appendSwitch('enable-zero-copy')
 
         this.readStartupFlags()

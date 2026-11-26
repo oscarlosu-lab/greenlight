@@ -30,7 +30,7 @@ function SettingsStreaming() {
     function resetDefaults(){
         if(!confirm(t('settings.common.resetDefaultsConfirm'))) return
 
-        const keys = ['xcloud_bitrate', 'xhome_bitrate', 'xcloud_show_non_entitled', 'video_profiles', 'video_codec', 'force_region_ip', 'preferred_game_language']
+        const keys = ['xcloud_bitrate', 'xhome_bitrate', 'xcloud_show_non_entitled', 'video_profiles', 'video_codec', 'force_region_ip', 'preferred_game_language', 'remote_port', 'remote_port_consoles']
         const reset = {}
         keys.forEach((k) => { reset[k] = defaultSettings[k] })
         setSettings({ ...settings, ...reset })
@@ -84,6 +84,14 @@ function SettingsStreaming() {
         setSettings({
             ...settings,
             stream_resolution: Number.parseInt(e.target.value),
+        })
+    }
+
+    function setRemotePort(e){
+        const parsed = Number.parseInt(e.target.value, 10)
+        setSettings({
+            ...settings,
+            remote_port: Number.isInteger(parsed) && parsed >= 1 && parsed <= 65535 ? parsed : 9002,
         })
     }
 
@@ -167,6 +175,19 @@ function SettingsStreaming() {
                             <option value="420">{t('settings.streaming.setH264ProfileValueLow')}</option>
                         </select>
                         <br /><small>{t('settings.streaming.setH264ProfileDescription')}</small>
+                    </p>
+
+                    <p>
+                        <label>{t('settings.streaming.remotePortLabel', { defaultValue: 'Remote Play public port' })}</label>
+                        <input
+                            type="number"
+                            min={1}
+                            max={65535}
+                            value={settings.remote_port ?? 9002}
+                            onChange={setRemotePort}
+                            style={{ maxWidth: 140 }}
+                        />
+                        <br /><small>{t('settings.streaming.remotePortDescription', { defaultValue: 'External UDP port forwarded to your Xbox for Remote Play (default: 9002).' })}</small>
                     </p>
 
                 </Card>

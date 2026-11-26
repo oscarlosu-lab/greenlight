@@ -54,6 +54,19 @@ export default class IpcApp extends IpcBase {
         return Promise.resolve(this.openDiagnosticWindow('chrome://webrtc-internals', 'Greenlight - WebRTC Internals'))
     }
 
+    // Microphone permission of the app. Only macOS keeps it per app; elsewhere the OS or browser prompts directly.
+    getMicrophoneAccess(){
+        return Promise.resolve(process.platform === 'darwin' ? electron.systemPreferences.getMediaAccessStatus('microphone') : 'granted')
+    }
+
+    askMicrophoneAccess(){
+        return process.platform === 'darwin' ? electron.systemPreferences.askForMediaAccess('microphone') : Promise.resolve(true)
+    }
+
+    openMicrophoneSettings(){
+        return electron.shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone').then(() => true)
+    }
+
     getConsoleId(){
         return Promise.resolve(this._application.getStartupFlags().consoleId || '')
     }

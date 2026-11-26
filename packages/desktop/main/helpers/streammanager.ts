@@ -1,6 +1,9 @@
 import Application from '../application'
 import xCloudApi, { playResult } from './xcloudapi'
 import { acquireStreamPerformance, releaseStreamPerformance } from './streamPerformance'
+import { defaultSettings } from '../../renderer/context/userContext.defaults'
+
+const DEFAULT_REMOTE_PORT = 9002
 
 function sessionStatus(error: unknown): number | undefined {
     const status = (error as { status?: number })?.status
@@ -55,6 +58,21 @@ export default class StreamManager {
 
     getSession(sessionId:string):streamSession {
         return this._sessions[sessionId]
+    }
+
+    // Port on the public IP that is forwarded to the console. Per-console setting wins over the default.
+    getRemotePort(consoleId:string):number {
+        const stored = this._application._store.get('settings', defaultSettings) as Partial<typeof defaultSettings>
+        const settings = {...defaultSettings, ...stored}
+
+        const isValid = (port:unknown):port is number => Number.isInteger(port) && (port as number) >= 1 && (port as number) <= 65535
+
+        const consolePort = (settings.remote_port_consoles as Record<string, number> | undefined)?.[consoleId]
+        if(isValid(consolePort)){
+            return consolePort
+        }
+
+        return isValid(settings.remote_port) ? settings.remote_port : DEFAULT_REMOTE_PORT
     }
 
     startStream(type:string|'home'|'cloud', target, resolution?:number){
@@ -158,7 +176,10 @@ export default class StreamManager {
                 return
             }
 
-            this.getApi(session.type).sendIce(sessionId, ice).then((result) => {
+            const remotePort = this.getRemotePort(session.target)
+            this._application.log('StreamManager', 'sendIce('+sessionId+') using remote port:', remotePort)
+
+            this.getApi(session.type).sendIce(sessionId, ice, remotePort).then((result) => {
 
                 resolve(result)
             }).catch((error) => {

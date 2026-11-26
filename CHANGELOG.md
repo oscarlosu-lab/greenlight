@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.6.0 (2026-11-26) — Cross-Platform Edition
+- **Linux Hardware Acceleration & Wayland**: enabled `VaapiVideoDecoder`, `VaapiVideoDecodeLinuxGL`, `UseOzonePlatform`, and `ozone-platform-hint=auto` on Linux (`main/application.ts`) plus `--socket=wayland` in Flatpak manifest (`io.github.unknownskl.greenlight.yml`).
+- **macOS Microphone Entitlements**: added `resources/entitlements.mac.plist`, `NSMicrophoneUsageDescription` in `electron-builder.yml`, and `getMicrophoneAccess` / `askMicrophoneAccess` / `openMicrophoneSettings` IPC handlers (`main/ipc/app.ts`).
+- **Configurable Remote Play Public Port**: added `remote_port` (default `9002`) and per-console `remote_port_consoles` in `StreamManager.getRemotePort()`, `xCloudApi.sendIce()`, and *Settings → Streaming* so multiple consoles can be forwarded on custom router ports.
+
 ## v2.5.1 (2026-11-21) — Hotfix
 - **FPS & Metrics HUD visibility**: raised `#component_streamcomponent_fps_overlay` `z-index` to `100` (above `#streamComponent video` at `96`) and positioned at `top: 78px` below the stream toolbar so it is always visible when enabled.
 
